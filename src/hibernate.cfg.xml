@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <property name="connection.url">jdbc:mysql://localhost:3306/vision1?useUnicode=true&amp;characterEncoding=utf-8</property>
+    <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+    <property name="show_sql">true</property>
+    <!--hibernate.dialect 只是Hibernate使用的数据库方言,就是要用Hibernate连接那种类型的数据库服务器。-->
+    <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+    <property name="hbm2ddl.auto">update</property>
+    <!--数据库用户名-->
+    <property name="connection.username">root</property>
+    <!--数据库密码-->
+    <property name="connection.password">123456</property>
+    <!--事务是否自动提交-->
+      <!-- <property name="connection.username"/> -->
+    <!-- <property name="connection.password"/> -->
+
+    <!-- DB schema will be updated if needed -->
+    <!-- <property name="hbm2ddl.auto">update</property> -->
+  </session-factory>
+</hibernate-configuration>
