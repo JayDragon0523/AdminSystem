@@ -67,7 +67,7 @@
                     <a href="javascript:;">场地管理</a>
                     <dl class="layui-nav-child" id="meetingroomList">
                         <dd><a href="javascript:;" onclick="hideOthers(this);myMeetingroomPage();" id="meetingroomOrderListSp">场地预约情况</a></dd>
-                        <dd><a href="javascript:;" onclick="hideOthers(this);myMeetingroomPage();" id="meetingroomDetailListSp">场地具体情况</a></dd>
+                        <dd><a href="javascript:;" onclick="hideOthers(this);myMeetingroomPage();" id="meetingroomDetailListSp">场地具体信息</a></dd>
                         <dd><a href="javascript:;" onclick="hideOthers(this);myMeetingroomPage();" id="addMeetingroomListSp">添加场地</a></dd>
                     </dl>
                 </li>
@@ -282,7 +282,8 @@
                 <legend>场地预约详情</legend>
             </fieldset>
         </div>
-        <!--场地具体情况-->
+        <div class="layui-tab-item"><table class="layui-hide" id="meetingroom" lay-filter="meetingroom"></table></div>
+        <!--场地具体信息-->
         <div style="display:none;" id="meetingroomDetailListSpan">
             <fieldset id="meetingroomDetail"  class="layui-elem-field layui-field-title" style="margin-top: 20px;">
                 <legend>场地详情</legend>
@@ -767,8 +768,8 @@
     var xmlHttp;
     var type;
 
-    var tempSno;
-    var tempSname;
+    var tempId;
+    var tempName;
 
     function upMessage() {
         document.getElementById("messageForm").reset();
@@ -900,15 +901,18 @@
         }
     }
 
-    // 初始化显示当前已经开的课程信息
+    // 初始化显示当前部门信息
     function queryDepartmentList(){
         var url = "queryDepartmentList";
         createXMLHttpRequest();
         xmlHttp.onreadystatechange = handleStateChange;
         xmlHttp.open("GET", url, true); xmlHttp.send(null);
     }
+    //删除职员
+    function deleteStaff(){
 
-    //更新当前已开课程信息
+    }
+    //更新当前部门信息
     function updateDepartmentInformationList() {
 
         var node = document.getElementById("seeDepartment");
@@ -930,32 +934,29 @@
         updateDepartmentListVisibility("departmentList");
 
     }
-    // 职员管理 初始化
+    // 职员管理初始化
     function employeeInformation(obj) {
         var dname = obj.childNodes[0].nodeValue;
 
         document.getElementById("currentdname").name=dname;
 
-
-        document.getElementById("dname").setAttribute("value",dname);
-
-        var COUREMurl='department_employee?dename='+dename;
+        var DEPARTurl='department_employee?dname='+dname;
         layui.use('table', function(){
             var table = layui.table;
             table.render({
                 elem: '#test'
-                ,url: COUREMurl
+                ,url: DEPARTurl
                 ,cols: [[
-                    {field:'id', width:150, title: 'id号', sort: true}
-                    ,{field:'sname', width:80, title: '姓名'}
+                    {field:'id', width:100, title: 'id号', sort: true}
+                    ,{field:'name', width:80, title: '姓名'}
                     ,{field:'company_id', width:80, title: '公司id'}
                     ,{field:'job_num', width:120, title: '工号'}
                     ,{field:'department_name', width:120,title: '部门'}
                     ,{field:'pswd', width:120, title: '密码'}
                     ,{field:'id_num', width:120, title: '身份证号'}
                     ,{field:'phone', width:120, title: '手机号'}
-                    ,{field:'face_info', width:120, title: '人脸信息'}
-                    ,{fixed: 'right', title:'操作', toolbar: '#barOP', width:150}
+                    ,{field:'face_info', width:150, title: '人脸信息'}
+                    ,{fixed: 'right', title:'操作', toolbar: '#barOP', width:80}
                 ]]
                 ,page: true
             });
@@ -965,11 +966,12 @@
                 if(obj.event === 'delete'){
                     //layer.alert('编辑行：<br>'+ JSON.stringify(data));
                     var info = JSON.parse(JSON.stringify(data));
-                    // tempSno = info.sno;
-                    // tempSname = info.sname;
-                    // //这里设置评价对象
-                    // document.getElementById('student').innerHTML='评价对象：'+tempSno+','+tempSname;
-                    // document.getElementById('normalTeacherRemarkTable').click();
+                    tempId = info.id;
+                    tempName = info.name;
+                    layer.confirm('真的删除此职员么', function(index){
+                        obj.del();
+                        layer.close(index);
+                    });
                 }
             });
         });

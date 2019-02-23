@@ -34,14 +34,15 @@
             <li class="layui-nav-item">
                 <a href="javascript:;">
                     <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
-                    ${sessionScope.Teacher.getTname()}
+                    ${sessionScope.admin.getId_num()}
                 </a>
                 <dl class="layui-nav-child">
                     <dd><a href="javascript:;" onclick="myInfoPage();">基本资料</a></dd>
                     <dd><a href="javascript:;" onclick="mySafePage();">安全设置</a></dd>
+                    <dd><a href="javascript:;" onclick="myFacePage();">人脸信息</a></dd>
                 </dl>
             </li>
-            <li class="layui-nav-item"><a href="">退了</a></li>
+            <li class="layui-nav-item"><a href="">注销</a></li>
         </ul>
     </div>
     <div class="layui-side layui-bg-black">
@@ -54,8 +55,7 @@
                     <dl class="layui-nav-child">
                         <dd><a href="javascript:;" onclick="myInfoPage();">基本资料</a></dd>
                         <dd><a href="javascript:;" onclick="mySafePage();">安全设置</a></dd>
-                        <%--<dd><a href="javascript:;">列表三</a></dd>--%>
-                        <%--<dd><a href="">超链接</a></dd>--%>
+                        <dd><a href="javascript:;" onclick="myFacePage();">人脸信息</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item">
@@ -74,19 +74,13 @@
         <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
             <legend align="center">基本资料</legend>
         </fieldset>
-        <form class="layui-form" action="/updateAdmin" method="post" target="teacherInfoFrame">
+        <form class="layui-form" action="/updateAdmin" method="post" target="teacherIn  foFrame">
 
 
             <div class="layui-form-item"align="center" >
                 <div class="layui-inline">
                     <label class="layui-form-label" align="left">姓名</label>
                     <input type="text" style="width: 500px"  lay-verify="required" autocomplete="off" class="layui-input" disabled="true" value="${sessionScope.admin.getId_num()}">
-                </div>
-            </div>
-            <div class="layui-form-item"align="center" >
-                <div class="layui-inline">
-                    <label class="layui-form-label" align="left">公司</label>
-                    <input type="text" style="width: 500px"  lay-verify="required" autocomplete="off" class="layui-input" disabled="true" value="${sessionScope.admin.getCompany_id()}">
                 </div>
             </div>
             <div class="layui-form-item"align="center" >
@@ -131,435 +125,425 @@
             </div>
         </form>
     </div>
-    <div id="faceinfoPage" class="layui-body" style="background-color: rgb(242,242,242);display:none;">
+    <div id="facePage" class="layui-body" style="background-color: rgb(242,242,242);display:block;">
         <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
-            <legend align="center">人脸信息</legend>
+            <legend align="center">当前人脸信息</legend>
         </fieldset>
-        <%--<form class="layui-form" action="/adminSafe" method="post">--%>
-            <%--<div class="layui-form-item" align="center">--%>
-                <%--<div class="layui-inline">--%>
-                    <%--<label class="layui-form-label" align="left">旧密码</label>--%>
-                    <%--<input type="password" style="width: 400px"  name="phone"    lay-verify="required|old" placeholder="请输入旧密码" autocomplete="off" class="layui-input">--%>
-
-                    <%--<label class="layui-form-label" align="left">新密码</label>--%>
-                    <%--<input type="password"  id="newPassword" style="width: 400px"  name="password" lay-verify="password" placeholder="请输入新密码" autocomplete="off" class="layui-input">--%>
-
-                    <%--<label class="layui-form-label" align="left">请确认</label>--%>
-                    <%--<input type="password" style="width: 400px"  name="repassword" lay-verify="repassword" placeholder="请输入新密码" autocomplete="off" class="layui-input">--%>
-                <%--</div>--%>
-                <%--<div class="layui-word-aux">请填写6到12位新密码</div>--%>
-            <%--</div>--%>
-            <%--<div class="layui-form-item" align="center">--%>
-                <%--<div class="layui-inline">--%>
-                    <%--<button class="layui-btn"  type="submit" lay-submit="" lay-filter="demo1">立即提交</button>--%>
-                    <%--<button type="reset"  class="layui-btn layui-btn-primary">重置</button>--%>
-                <%--</div>--%>
-            <%--</div>--%>
-        <%--</form>--%>
+        <form class="layui-form layui-form-pane" id="faceFormId" action="/UploadFaceInfo" target="frame1" method="POST" enctype="multipart/form-data">
+            <center>
+                <img src="http://t.cn/RCzsdCq">
+                <div class="layui-input-block"></div>
+                <div id ="upfacediv" class="layui-form-item">
+                    <button type="button" class="layui-btn layui-btn-normal" id="selectface" >选择新照片</button>
+                    <button type="button" class="layui-btn" id="faceUploadButton" onclick="upload();">开始上传</button><br>
+                    <iframe name="frame1" frameborder="0" height="40"></iframe>
+                </div>
+            </center>
+        </form>
     </div>
-    <div id="teachPage" class="layui-body" style="background-color: rgb(242,242,242);display:block;">
-        <!-- 已经开设的课程 -->
-        <div style="display:block;" id="teachersLessonListSpan">
-            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
-                <legend>当前已经开设课程信息</legend>
-            </fieldset>
-            <div class="layui-row layui-col-space155" style="background-color: rgb(242,242,242);" id="teachersLessonList">
-                <div id="openLesson"></div>
-            </div>
-        </div>
-        <!--学生管理-->
-        <div style="display:none;" id="lessonInformationListSpan">
-            <fieldset id="homeworkLno"  class="layui-elem-field layui-field-title" style="margin-top: 20px;">
-                <legend>学生管理</legend>
-            </fieldset>
-            <div class="layui-tab layui-tab-card" style="height:100% ">
-                <ul class="layui-tab-title">
-                    <li class="layui-this">学生信息</li>
-                    <li>新增学生</li>
-                    <li>查找学生</li>
+    <%--<div id="teachPage" class="layui-body" style="background-color: rgb(242,242,242);display:block;">--%>
+        <%--<!-- 已经开设的课程 -->--%>
+        <%--<div style="display:block;" id="teachersLessonListSpan">--%>
+            <%--<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">--%>
+                <%--<legend>当前已经开设课程信息</legend>--%>
+            <%--</fieldset>--%>
+            <%--<div class="layui-row layui-col-space155" style="background-color: rgb(242,242,242);" id="teachersLessonList">--%>
+                <%--<div id="openLesson"></div>--%>
+            <%--</div>--%>
+        <%--</div>--%>
+        <%--<!--学生管理-->--%>
+        <%--<div style="display:none;" id="lessonInformationListSpan">--%>
+            <%--<fieldset id="homeworkLno"  class="layui-elem-field layui-field-title" style="margin-top: 20px;">--%>
+                <%--<legend>学生管理</legend>--%>
+            <%--</fieldset>--%>
+            <%--<div class="layui-tab layui-tab-card" style="height:100% ">--%>
+                <%--<ul class="layui-tab-title">--%>
+                    <%--<li class="layui-this">学生信息</li>--%>
+                    <%--<li>新增学生</li>--%>
+                    <%--<li>查找学生</li>--%>
 
-                </ul>
-                <div class="layui-tab-content" style="height: 100px;">
-                    <%--学生信息--%>
-                    <div class="layui-tab-item">
+                <%--</ul>--%>
+                <%--<div class="layui-tab-content" style="height: 100px;">--%>
+                    <%--&lt;%&ndash;学生信息&ndash;%&gt;--%>
+                    <%--<div class="layui-tab-item">--%>
 
-                        <table class="layui-table" lay-data="{url:'findStudents', id:'test3'}" lay-filter="test3">
-                            <thead>
-                            <tr>
-                                <th lay-data="{field:'sno', width:80, sort: true}">学生编号</th>
-                                <th lay-data="{field:'sname', width:100, sort: true, edit: 'text'}">学生姓名</th>
-                                <th lay-data="{field:'sex', edit: 'text'width:60}">性别</th>
-                                <th lay-data="{field:'cno', width:80, edit: 'text'}">班级编号</th>
-                                <th lay-data="{field:'enteryear',width:100, sort: true, edit: 'text'}">入学年份</th>
-                                <th lay-data="{field:'birthday', width:100,sort: true, edit: 'text'}">出生日期</th>
-                                <th lay-data="{field:'phone', width:120,sort: true, edit: 'text'}">联系方式</th>
-                                <th lay-data="{field:'password',width:100, sort: true, edit: 'text'}">登陆密码</th>
-                            </tr>
-                            </thead>
-                        </table>
-                    </div>
-                    <%--新增学生--%>
-                    <div class="layui-tab-item">
-                        <form class="layui-form layui-form-pane" id="messageForm" action="/upStudent"  method="POST"  target="messageFrame">
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">学生编号</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="sno" required  lay-verify="required" placeholder="请输入学生编号" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">学生姓名</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="sname" required  lay-verify="required" placeholder="请输入学生姓名" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <div class="layui-inline">
-                                    <label class="layui-form-label">入学日期</label>
-                                    <div class="layui-input-inline">
-                                        <input type="text" class="layui-input" id="messageTime" name="enteryear" placeholder="yyyy-MM-dd HH:mm:ss"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">班级编号</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="cno" required  lay-verify="required" placeholder="请输入班级编号" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">性别</label>
-                                <div class="layui-input-block">
-                                    <input type="radio" name="sex" value="男" title="男">
-                                    <input type="radio" name="sex" value="女" title="女" checked>
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">系编号</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="dno" required  lay-verify="required" placeholder="请输入系编号" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">联系方式</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="phone" required  lay-verify="required" placeholder="请输入联系方式" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <div class="layui-inline">
-                                    <label class="layui-form-label">出生年月</label>
-                                    <div class="layui-input-inline">
-                                        <input type="text" class="layui-input" id=Time1" name="birthday" placeholder="yyyy-MM-dd"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">学生登陆密码</label>
-                                <div class="layui-input-block">
-                                    <input type="password" name="password" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <button type="submit" id="messageFormSubmit" class="layui-btn" onclick="setTimeout(upMessage,'1000');">确认添加</button>
-                                <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset">重置</button>
-                            </div>
-                        </form>
-                    </div>
-                    <%--查找学生--%>
-                    <div class="layui-tab-item">
+                        <%--<table class="layui-table" lay-data="{url:'findStudents', id:'test3'}" lay-filter="test3">--%>
+                            <%--<thead>--%>
+                            <%--<tr>--%>
+                                <%--<th lay-data="{field:'sno', width:80, sort: true}">学生编号</th>--%>
+                                <%--<th lay-data="{field:'sname', width:100, sort: true, edit: 'text'}">学生姓名</th>--%>
+                                <%--<th lay-data="{field:'sex', edit: 'text'width:60}">性别</th>--%>
+                                <%--<th lay-data="{field:'cno', width:80, edit: 'text'}">班级编号</th>--%>
+                                <%--<th lay-data="{field:'enteryear',width:100, sort: true, edit: 'text'}">入学年份</th>--%>
+                                <%--<th lay-data="{field:'birthday', width:100,sort: true, edit: 'text'}">出生日期</th>--%>
+                                <%--<th lay-data="{field:'phone', width:120,sort: true, edit: 'text'}">联系方式</th>--%>
+                                <%--<th lay-data="{field:'password',width:100, sort: true, edit: 'text'}">登陆密码</th>--%>
+                            <%--</tr>--%>
+                            <%--</thead>--%>
+                        <%--</table>--%>
+                    <%--</div>--%>
+                    <%--&lt;%&ndash;新增学生&ndash;%&gt;--%>
+                    <%--<div class="layui-tab-item">--%>
+                        <%--<form class="layui-form layui-form-pane" id="messageForm" action="/upStudent"  method="POST"  target="messageFrame">--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">学生编号</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="sno" required  lay-verify="required" placeholder="请输入学生编号" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">学生姓名</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="sname" required  lay-verify="required" placeholder="请输入学生姓名" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<div class="layui-inline">--%>
+                                    <%--<label class="layui-form-label">入学日期</label>--%>
+                                    <%--<div class="layui-input-inline">--%>
+                                        <%--<input type="text" class="layui-input" id="messageTime" name="enteryear" placeholder="yyyy-MM-dd HH:mm:ss"/>--%>
+                                    <%--</div>--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">班级编号</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="cno" required  lay-verify="required" placeholder="请输入班级编号" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">性别</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="radio" name="sex" value="男" title="男">--%>
+                                    <%--<input type="radio" name="sex" value="女" title="女" checked>--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">系编号</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="dno" required  lay-verify="required" placeholder="请输入系编号" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">联系方式</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="phone" required  lay-verify="required" placeholder="请输入联系方式" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<div class="layui-inline">--%>
+                                    <%--<label class="layui-form-label">出生年月</label>--%>
+                                    <%--<div class="layui-input-inline">--%>
+                                        <%--<input type="text" class="layui-input" id=Time1" name="birthday" placeholder="yyyy-MM-dd"/>--%>
+                                    <%--</div>--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">学生登陆密码</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="password" name="password" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<button type="submit" id="messageFormSubmit" class="layui-btn" onclick="setTimeout(upMessage,'1000');">确认添加</button>--%>
+                                <%--<button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset">重置</button>--%>
+                            <%--</div>--%>
+                        <%--</form>--%>
+                    <%--</div>--%>
+                    <%--&lt;%&ndash;查找学生&ndash;%&gt;--%>
+                    <%--<div class="layui-tab-item">--%>
 
-                        <div class="layui-form-item">
-                            <label class="layui-form-label">输入学生编号</label>
-                            <div class="layui-input-block">
-                                <input type="text" name="sno" id="snosno" autocomplete="off" placeholder="请输入学生编号" class="layui-input">
-                            </div>
-                        </div>
-                        <div class="layui-form-item">
-                            <div class="layui-input-block">
-                                <button  class="layui-btn" lay-submit lay-filter="formDemo" onclick="findones();">立即查询</button>
-                                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
-                            </div>
-                        </div>
-
-
-                        <table id="ST" lay-filter="test"></table>
-                        <script type="text/html" id="barDemo1">
-                            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-                        </script>
+                        <%--<div class="layui-form-item">--%>
+                            <%--<label class="layui-form-label">输入学生编号</label>--%>
+                            <%--<div class="layui-input-block">--%>
+                                <%--<input type="text" name="sno" id="snosno" autocomplete="off" placeholder="请输入学生编号" class="layui-input">--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
+                        <%--<div class="layui-form-item">--%>
+                            <%--<div class="layui-input-block">--%>
+                                <%--<button  class="layui-btn" lay-submit lay-filter="formDemo" onclick="findones();">立即查询</button>--%>
+                                <%--<button type="reset" class="layui-btn layui-btn-primary">重置</button>--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
 
 
-                    </div>
-
-                </div>
-            </div>
-        </div>
-        <!--课程情况管理-->
-        <div style="display:none;" id="midInformationListSpan">
-            <fieldset id="midManagement"  class="layui-elem-field layui-field-title" style="margin-top: 20px;">
-                <legend>开课情况管理</legend>
-            </fieldset>
-            <div class="layui-tab layui-tab-card" style="height:100% ">
-                <ul class="layui-tab-title">
-                    <li >开课管理</li>
-                    <li >新增开课</li>
-                    <li >课程库管理</li>
-                    <li >新增课程库</li>
-                </ul>
-
-                <div class="layui-tab-content" style="height: 100px;">
-                    <%--开课管理--%>
-                    <div class="layui-tab-item">
-                        <div class="layui-form-item">
-                            <label class="layui-form-label">开课编号</label>
-                            <div class="layui-input-block">
-                                <input type="text" name="opno" id="opno" autocomplete="off" placeholder="请输入开课编号" class="layui-input">
-                            </div>
-                        </div>
-                        <div class="layui-form-item">
-                            <div class="layui-input-block">
-                                <button  class="layui-btn" lay-submit  onclick="findoneopenones();">立即查询</button>
-                                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
-                            </div>
-                        </div>
-
-                        <table class="layui-table" lay-data="{url:'findopenlesson', id:'test4'}" lay-filter="test4">
-                            <thead>
-                            <tr>
-                                <th lay-data="{field:'gno', width:80, sort: true}">课程编号</th>
-                                <th lay-data="{field:'cno', width:80, sort: true, edit: 'text'}">开设班级编号</th>
-                                <th lay-data="{field:'day',width:100, sort: true, edit: 'text'}">开课学时</th>
-                                <th lay-data="{field:'lno', width:80, edit: 'text'}">课程码</th>
-                                <th lay-data="{field:'tno',width:100, sort: true, edit: 'text'}">教师编号</th>
-                            </tr>
-                            </thead>
-                        </table>
-                        <table class="layui-table" id="findonel" lay-filter="test5"></table>
-                        <script type="text/html" id="barDemo2">
-                            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-                        </script>
-                    </div>
-                    <%--新增开课--%>
-                    <div class="layui-tab-item">
-                        <form class="layui-form layui-form-pane" id="messageForm1" action="/upOpenlesson"  method="POST" >
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">开课编号</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="gno" required  lay-verify="required" placeholder="请输入开课编号" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">开课班级</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="cno" required  lay-verify="required" placeholder="请输入开课班级" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <div class="layui-inline">
-                                    <label class="layui-form-label">课程时间</label>
-                                    <div class="layui-input-inline">
-                                        <input type="text" class="layui-input"  name="day" placeholder="yyyy-MM-dd HH:mm:ss"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">课程编号</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="lno" required  lay-verify="required" placeholder="请输入课程编号" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">教师编号</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="tno" required  lay-verify="required" placeholder="请输入系编号" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <button type="submit" id="messageFormSubmit1" class="layui-btn" onclick="upMessage1();">确认开课</button>
-                                <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset1">重置</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <%--课程库管理--%>
-                    <div class="layui-tab-item">
-                        <div class="layui-form-item">
-                            <label class="layui-form-label">课程库里的编号</label>
-                            <div class="layui-input-block">
-                                <input type="text" name="lesson" id="lesson" autocomplete="off" placeholder="请输入课程编号" class="layui-input">
-                            </div>
-                        </div>
-                        <div class="layui-form-item">
-                            <div class="layui-input-block">
-                                <button  class="layui-btn" lay-submit  onclick="findonele();">立即查询</button>
-                                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
-                            </div>
-                        </div>
-
-                        <table class="layui-table" id="findone3" lay-filter="test6"></table>
-                        <script type="text/html" id="barDemo3">
-                            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-                        </script>
-                    </div>
-
-                    <%--新增课程库课程--%>
-                    <div class="layui-tab-item">
-                        <form class="layui-form layui-form-pane" id="messageForm2" action="/uplesson"  method="POST" >
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">课程编号</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="lno" required  lay-verify="required" placeholder="请输入课程编号" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">课程学时</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="lhour" required  lay-verify="required" placeholder="请输入开课学时" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <div class="layui-inline">
-                                    <label class="layui-form-label">课程名称</label>
-                                    <div class="layui-input-inline">
-                                        <input type="text" class="layui-input" required  lay-verify="required" name="lname" autocomplete="off" class="layui-input"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <button type="submit" id="messageFormSubmit2" class="layui-btn" onclick="setTimeout(upMessage2,'1000');">确认添加</button>
-                                <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset2">重置</button>
-                            </div>
-                        </form>
-                    </div>
+                        <%--<table id="ST" lay-filter="test"></table>--%>
+                        <%--<script type="text/html" id="barDemo1">--%>
+                            <%--<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>--%>
+                        <%--</script>--%>
 
 
-                </div>
-            </div>
-        </div>
-        <%--教师管理--%>
-        <div style="display:none;" id="finalInformationListSpan">
-            <fieldset id="homeworkLno1"  class="layui-elem-field layui-field-title" style="margin-top: 20px;">
-                <legend>教师管理</legend>
-            </fieldset>
-            <div class="layui-tab layui-tab-card" style="height:100% ">
-                <ul class="layui-tab-title">
-                    <li class="layui-this">教师信息</li>
-                    <li>新增教师</li>
-                    <li>查找教师</li>
+                    <%--</div>--%>
 
-                </ul>
-                <div class="layui-tab-content" style="height: 100px;">
-                    <%--教师信息--%>
-                    <div class="layui-tab-item">
+                <%--</div>--%>
+            <%--</div>--%>
+        <%--</div>--%>
+        <%--<!--课程情况管理-->--%>
+        <%--<div style="display:none;" id="midInformationListSpan">--%>
+            <%--<fieldset id="midManagement"  class="layui-elem-field layui-field-title" style="margin-top: 20px;">--%>
+                <%--<legend>开课情况管理</legend>--%>
+            <%--</fieldset>--%>
+            <%--<div class="layui-tab layui-tab-card" style="height:100% ">--%>
+                <%--<ul class="layui-tab-title">--%>
+                    <%--<li >开课管理</li>--%>
+                    <%--<li >新增开课</li>--%>
+                    <%--<li >课程库管理</li>--%>
+                    <%--<li >新增课程库</li>--%>
+                <%--</ul>--%>
 
-                        <table class="layui-table" lay-data="{url:'findTeachers', id:'test10'}" lay-filter="test10">
-                            <thead>
-                            <tr>
-                                <th lay-data="{field:'tno', width:80, sort: true}">教师编号</th>
-                                <th lay-data="{field:'tname', width:100, sort: true, edit: 'text'}">教师姓名</th>
-                                <th lay-data="{field:'sex', edit: 'text'width:60}">性别</th>
-                                <th lay-data="{field:'title', width:80, edit: 'text'}">教师职称</th>
-                                <th lay-data="{field:'birthday', width:100,sort: true, edit: 'text'}">出生日期</th>
-                                <th lay-data="{field:'phone', width:120,sort: true, edit: 'text'}">联系方式</th>
-                                <th lay-data="{field:'password',width:100, sort: true, edit: 'text'}">登陆密码</th>
-                            </tr>
-                            </thead>
-                        </table>
-                    </div>
-                    <%--新增教师--%>
-                    <div class="layui-tab-item">
-                        <form class="layui-form layui-form-pane" id="messageForm5" action="/upTeacher"  method="POST"  target="messageFrame">
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">教师编号</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="tno" required  lay-verify="required" placeholder="请输入编号" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">教师姓名</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="tname" required  lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
+                <%--<div class="layui-tab-content" style="height: 100px;">--%>
+                    <%--&lt;%&ndash;开课管理&ndash;%&gt;--%>
+                    <%--<div class="layui-tab-item">--%>
+                        <%--<div class="layui-form-item">--%>
+                            <%--<label class="layui-form-label">开课编号</label>--%>
+                            <%--<div class="layui-input-block">--%>
+                                <%--<input type="text" name="opno" id="opno" autocomplete="off" placeholder="请输入开课编号" class="layui-input">--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
+                        <%--<div class="layui-form-item">--%>
+                            <%--<div class="layui-input-block">--%>
+                                <%--<button  class="layui-btn" lay-submit  onclick="findoneopenones();">立即查询</button>--%>
+                                <%--<button type="reset" class="layui-btn layui-btn-primary">重置</button>--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
+
+                        <%--<table class="layui-table" lay-data="{url:'findopenlesson', id:'test4'}" lay-filter="test4">--%>
+                            <%--<thead>--%>
+                            <%--<tr>--%>
+                                <%--<th lay-data="{field:'gno', width:80, sort: true}">课程编号</th>--%>
+                                <%--<th lay-data="{field:'cno', width:80, sort: true, edit: 'text'}">开设班级编号</th>--%>
+                                <%--<th lay-data="{field:'day',width:100, sort: true, edit: 'text'}">开课学时</th>--%>
+                                <%--<th lay-data="{field:'lno', width:80, edit: 'text'}">课程码</th>--%>
+                                <%--<th lay-data="{field:'tno',width:100, sort: true, edit: 'text'}">教师编号</th>--%>
+                            <%--</tr>--%>
+                            <%--</thead>--%>
+                        <%--</table>--%>
+                        <%--<table class="layui-table" id="findonel" lay-filter="test5"></table>--%>
+                        <%--<script type="text/html" id="barDemo2">--%>
+                            <%--<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>--%>
+                        <%--</script>--%>
+                    <%--</div>--%>
+                    <%--&lt;%&ndash;新增开课&ndash;%&gt;--%>
+                    <%--<div class="layui-tab-item">--%>
+                        <%--<form class="layui-form layui-form-pane" id="messageForm1" action="/upOpenlesson"  method="POST" >--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">开课编号</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="gno" required  lay-verify="required" placeholder="请输入开课编号" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">开课班级</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="cno" required  lay-verify="required" placeholder="请输入开课班级" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<div class="layui-inline">--%>
+                                    <%--<label class="layui-form-label">课程时间</label>--%>
+                                    <%--<div class="layui-input-inline">--%>
+                                        <%--<input type="text" class="layui-input"  name="day" placeholder="yyyy-MM-dd HH:mm:ss"/>--%>
+                                    <%--</div>--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">课程编号</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="lno" required  lay-verify="required" placeholder="请输入课程编号" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">教师编号</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="tno" required  lay-verify="required" placeholder="请输入系编号" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<button type="submit" id="messageFormSubmit1" class="layui-btn" onclick="upMessage1();">确认开课</button>--%>
+                                <%--<button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset1">重置</button>--%>
+                            <%--</div>--%>
+                        <%--</form>--%>
+                    <%--</div>--%>
+
+                    <%--&lt;%&ndash;课程库管理&ndash;%&gt;--%>
+                    <%--<div class="layui-tab-item">--%>
+                        <%--<div class="layui-form-item">--%>
+                            <%--<label class="layui-form-label">课程库里的编号</label>--%>
+                            <%--<div class="layui-input-block">--%>
+                                <%--<input type="text" name="lesson" id="lesson" autocomplete="off" placeholder="请输入课程编号" class="layui-input">--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
+                        <%--<div class="layui-form-item">--%>
+                            <%--<div class="layui-input-block">--%>
+                                <%--<button  class="layui-btn" lay-submit  onclick="findonele();">立即查询</button>--%>
+                                <%--<button type="reset" class="layui-btn layui-btn-primary">重置</button>--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
+
+                        <%--<table class="layui-table" id="findone3" lay-filter="test6"></table>--%>
+                        <%--<script type="text/html" id="barDemo3">--%>
+                            <%--<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>--%>
+                        <%--</script>--%>
+                    <%--</div>--%>
+
+                    <%--&lt;%&ndash;新增课程库课程&ndash;%&gt;--%>
+                    <%--<div class="layui-tab-item">--%>
+                        <%--<form class="layui-form layui-form-pane" id="messageForm2" action="/uplesson"  method="POST" >--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">课程编号</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="lno" required  lay-verify="required" placeholder="请输入课程编号" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">课程学时</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="lhour" required  lay-verify="required" placeholder="请输入开课学时" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<div class="layui-inline">--%>
+                                    <%--<label class="layui-form-label">课程名称</label>--%>
+                                    <%--<div class="layui-input-inline">--%>
+                                        <%--<input type="text" class="layui-input" required  lay-verify="required" name="lname" autocomplete="off" class="layui-input"/>--%>
+                                    <%--</div>--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<button type="submit" id="messageFormSubmit2" class="layui-btn" onclick="setTimeout(upMessage2,'1000');">确认添加</button>--%>
+                                <%--<button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset2">重置</button>--%>
+                            <%--</div>--%>
+                        <%--</form>--%>
+                    <%--</div>--%>
 
 
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">性别</label>
-                                <div class="layui-input-block">
-                                    <input type="radio" name="sex" value="男" title="男">
-                                    <input type="radio" name="sex" value="女" title="女" checked>
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">职称</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="title" required  lay-verify="required" placeholder="请输入职称" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">联系方式</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="phone" required  lay-verify="required" placeholder="请输入联系方式" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <div class="layui-inline">
-                                    <label class="layui-form-label">出生年月</label>
-                                    <div class="layui-input-inline">
-                                        <input type="text" class="layui-input" id=Time" name="birthday" placeholder="yyyy-MM-dd"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">教师登陆密码</label>
-                                <div class="layui-input-block">
-                                    <input type="password" name="password" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <button type="submit" id="messageFormSubmit5" class="layui-btn" onclick="setTimeout(upMessage8,'1000');" >确认添加</button>
-                                <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset5">重置</button>
-                            </div>
-                        </form>
-                    </div>
-                    <%--查找教师--%>
-                    <div class="layui-tab-item">
+                <%--</div>--%>
+            <%--</div>--%>
+        <%--</div>--%>
+        <%--&lt;%&ndash;教师管理&ndash;%&gt;--%>
+        <%--<div style="display:none;" id="finalInformationListSpan">--%>
+            <%--<fieldset id="homeworkLno1"  class="layui-elem-field layui-field-title" style="margin-top: 20px;">--%>
+                <%--<legend>教师管理</legend>--%>
+            <%--</fieldset>--%>
+            <%--<div class="layui-tab layui-tab-card" style="height:100% ">--%>
+                <%--<ul class="layui-tab-title">--%>
+                    <%--<li class="layui-this">教师信息</li>--%>
+                    <%--<li>新增教师</li>--%>
+                    <%--<li>查找教师</li>--%>
 
-                        <div class="layui-form-item">
-                            <label class="layui-form-label">输入教师编号</label>
-                            <div class="layui-input-block">
-                                <input type="text" name="tno" id="tno" autocomplete="off" placeholder="请输入教师编号" class="layui-input">
-                            </div>
-                        </div>
-                        <div class="layui-form-item">
-                            <div class="layui-input-block">
-                                <button  class="layui-btn" lay-submit lay-filter="formDemo10" onclick="findTones();">立即查询</button>
-                                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
-                            </div>
-                        </div>
+                <%--</ul>--%>
+                <%--<div class="layui-tab-content" style="height: 100px;">--%>
+                    <%--&lt;%&ndash;教师信息&ndash;%&gt;--%>
+                    <%--<div class="layui-tab-item">--%>
+
+                        <%--<table class="layui-table" lay-data="{url:'findTeachers', id:'test10'}" lay-filter="test10">--%>
+                            <%--<thead>--%>
+                            <%--<tr>--%>
+                                <%--<th lay-data="{field:'tno', width:80, sort: true}">教师编号</th>--%>
+                                <%--<th lay-data="{field:'tname', width:100, sort: true, edit: 'text'}">教师姓名</th>--%>
+                                <%--<th lay-data="{field:'sex', edit: 'text'width:60}">性别</th>--%>
+                                <%--<th lay-data="{field:'title', width:80, edit: 'text'}">教师职称</th>--%>
+                                <%--<th lay-data="{field:'birthday', width:100,sort: true, edit: 'text'}">出生日期</th>--%>
+                                <%--<th lay-data="{field:'phone', width:120,sort: true, edit: 'text'}">联系方式</th>--%>
+                                <%--<th lay-data="{field:'password',width:100, sort: true, edit: 'text'}">登陆密码</th>--%>
+                            <%--</tr>--%>
+                            <%--</thead>--%>
+                        <%--</table>--%>
+                    <%--</div>--%>
+                    <%--&lt;%&ndash;新增教师&ndash;%&gt;--%>
+                    <%--<div class="layui-tab-item">--%>
+                        <%--<form class="layui-form layui-form-pane" id="messageForm5" action="/upTeacher"  method="POST"  target="messageFrame">--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">教师编号</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="tno" required  lay-verify="required" placeholder="请输入编号" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">教师姓名</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="tname" required  lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
 
 
-                        <table id="TT" lay-filter="test11"></table>
-                        <script type="text/html" id="barDemo10">
-                            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-                        </script>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">性别</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="radio" name="sex" value="男" title="男">--%>
+                                    <%--<input type="radio" name="sex" value="女" title="女" checked>--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">职称</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="title" required  lay-verify="required" placeholder="请输入职称" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">联系方式</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="text" name="phone" required  lay-verify="required" placeholder="请输入联系方式" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<div class="layui-inline">--%>
+                                    <%--<label class="layui-form-label">出生年月</label>--%>
+                                    <%--<div class="layui-input-inline">--%>
+                                        <%--<input type="text" class="layui-input" id=Time" name="birthday" placeholder="yyyy-MM-dd"/>--%>
+                                    <%--</div>--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<label class="layui-form-label">教师登陆密码</label>--%>
+                                <%--<div class="layui-input-block">--%>
+                                    <%--<input type="password" name="password" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<div class="layui-form-item">--%>
+                                <%--<button type="submit" id="messageFormSubmit5" class="layui-btn" onclick="setTimeout(upMessage8,'1000');" >确认添加</button>--%>
+                                <%--<button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset5">重置</button>--%>
+                            <%--</div>--%>
+                        <%--</form>--%>
+                    <%--</div>--%>
+                    <%--&lt;%&ndash;查找教师&ndash;%&gt;--%>
+                    <%--<div class="layui-tab-item">--%>
+
+                        <%--<div class="layui-form-item">--%>
+                            <%--<label class="layui-form-label">输入教师编号</label>--%>
+                            <%--<div class="layui-input-block">--%>
+                                <%--<input type="text" name="tno" id="tno" autocomplete="off" placeholder="请输入教师编号" class="layui-input">--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
+                        <%--<div class="layui-form-item">--%>
+                            <%--<div class="layui-input-block">--%>
+                                <%--<button  class="layui-btn" lay-submit lay-filter="formDemo10" onclick="findTones();">立即查询</button>--%>
+                                <%--<button type="reset" class="layui-btn layui-btn-primary">重置</button>--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
 
 
-                    </div>
+                        <%--<table id="TT" lay-filter="test11"></table>--%>
+                        <%--<script type="text/html" id="barDemo10">--%>
+                            <%--<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>--%>
+                        <%--</script>--%>
 
-                </div>
-            </div>
-        </div>
 
-        <input type="hidden" id="currentlname" name=""/>
-        <input type="hidden" id="currentlno" name=""/>
-        <input type="hidden" id="currentcname" name=""/>
-        <%--//信息窗口--%>
-        <iframe  id="messageFrame1" name="messageFrame1" style="display: none;width:0; height:0" name="submitFrame"  src="about:blank"></iframe>
-        <iframe  id="messageFrame" name="messageFrame" style="display: none;width:0; height:0" name="submitFrame"  src="about:blank"></iframe>
-        <iframe  id="teacherInfoFrame" name="teacherInfoFrame" style="display: none;width:0; height:0" name="submitFrame"  src="about:blank"></iframe>
+                    <%--</div>--%>
 
-    </div>
+                <%--</div>--%>
+            <%--</div>--%>
+        <%--</div>--%>
+
+        <%--<input type="hidden" id="currentlname" name=""/>--%>
+        <%--<input type="hidden" id="currentlno" name=""/>--%>
+        <%--<input type="hidden" id="currentcname" name=""/>--%>
+        <%--&lt;%&ndash;//信息窗口&ndash;%&gt;--%>
+        <%--<iframe  id="messageFrame1" name="messageFrame1" style="display: none;width:0; height:0" name="submitFrame"  src="about:blank"></iframe>--%>
+        <%--<iframe  id="messageFrame" name="messageFrame" style="display: none;width:0; height:0" name="submitFrame"  src="about:blank"></iframe>--%>
+        <%--<iframe  id="teacherInfoFrame" name="teacherInfoFrame" style="display: none;width:0; height:0" name="submitFrame"  src="about:blank"></iframe>--%>
+
+    <%--</div>--%>
 
     <div class="layui-footer">
         <!-- 底部固定区域 -->
@@ -1061,19 +1045,19 @@
 
     //设置页面的可见性
     function myInfoPage(){
-        document.getElementById("teachPage").style.display="none";
-        document.getElementById("safePage").style.display="none";
         document.getElementById("infoPage").style.display="block";
+        document.getElementById("facePage").style.display="none";
+        document.getElementById("safePage").style.display="none";
     }
     function mySafePage(){
-        document.getElementById("teachPage").style.display="none";
+        document.getElementById("facePage").style.display="none";
         document.getElementById("safePage").style.display="block";
         document.getElementById("infoPage").style.display="none";
     }
-    function  myTeachPage(){
+    function  myFacePage(){
         document.getElementById("infoPage").style.display="none";
         document.getElementById("safePage").style.display="none";
-        document.getElementById("teachPage").style.display="block";
+        document.getElementById("facePage").style.display="block";
 
     }
 
