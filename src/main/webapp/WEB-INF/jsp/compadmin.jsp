@@ -97,7 +97,7 @@
             <div class="layui-form-item"align="center" >
                 <div class="layui-inline">
                     <label class="layui-form-label" align="left">公司</label>
-                    <input type="text" style="width: 500px"  lay-verify="required" autocomplete="off" class="layui-input" disabled="true" value="${sessionScope.admin.getCompany_id()}">
+                    <input type="text" style="width: 500px"  lay-verify="required" autocomplete="off" class="layui-input" disabled="true" value="${sessionScope.admin.getCompany().getName()}">
                 </div>
             </div>
             <div class="layui-form-item"align="center" >
