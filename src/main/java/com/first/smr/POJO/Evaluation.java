@@ -15,36 +15,19 @@ public class Evaluation implements Serializable {
     private BigInteger id;
     private BigInteger place_id;
     private BigInteger evaluator_id;
-    private BigInteger staff_id;
-    private BigInteger visitor_id;
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH},optional = false)
     @JoinColumn(name = "place_id",insertable=false, updatable=false)
     private Company place;
     private String evaluator_type;
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH},optional = false)
-    @JoinColumn(name = "visitor_id",insertable=false, updatable=false)
+    @JoinColumn(name = "evaluator_id",insertable=false, updatable=false)
     private Visitor visitor;
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH},optional = false)
-    @JoinColumn(name = "staff_id",insertable=false, updatable=false)
+    @JoinColumn(name = "evaluator_id",insertable=false, updatable=false)
     private Staff staff;
     private Timestamp time;
     private String content;
 
-    public BigInteger getStaff_id() {
-        return staff_id;
-    }
-
-    public void setStaff_id(BigInteger staff_id) {
-        this.staff_id = staff_id;
-    }
-
-    public BigInteger getVisitor_id() {
-        return visitor_id;
-    }
-
-    public void setVisitor_id(BigInteger visitor_id) {
-        this.visitor_id = visitor_id;
-    }
 
     public BigInteger getId() {
         return id;

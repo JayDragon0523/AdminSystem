@@ -17,7 +17,7 @@
 </head>
 <body class="loginBody">
 <form class="layui-form" action="<c:url value="http://localhost:8080/loginCheck.html"/>" method="post">
-    <div class="login_face"><img src="/images/face.jpg" class="userAvatar"></div>
+    <div class="login_face"><img src="/images/face1.jpg" class="userAvatar"></div>
     <c:if test="${!empty error}">
         <font color="red"><c:out value="${error}" /></font>
     </c:if>
