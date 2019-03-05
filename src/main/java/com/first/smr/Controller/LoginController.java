@@ -29,11 +29,14 @@ public class LoginController{
 			throws Exception {
 		Admin a = administrationService.aLoginCheck(loginCommand.getUserName(), loginCommand.getPassword());
 		if (a != null) {
-			request.getSession().setAttribute("admin", a);
-			if(a.getIdentity().equals("组织管理员"))
+			if(a.getIdentity().equals("组织管理员")){
+				request.getSession().setAttribute("OAdmin", a);
 				return new ModelAndView("compadmin");
-			else
+			}
+			else{
+				request.getSession().setAttribute("SAdmin", a);
 				return new ModelAndView("sysadmin");
+			}
 		} else {
 			return new ModelAndView("login", "error", "用户名或密码错误。");
 		}

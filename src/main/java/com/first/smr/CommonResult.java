@@ -13,6 +13,7 @@ public class CommonResult {
     }
 
     private String msg;
+    private int count;
     private Object data;
 
     public int getStatus() {
@@ -37,6 +38,14 @@ public class CommonResult {
 
     public void setData(Object data) {
         this.data = data;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 
     public CommonResult()

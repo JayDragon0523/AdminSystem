@@ -41,7 +41,7 @@ public interface VisitorDAO extends JpaRepository<Visitor,BigInteger> {
     * @param pageable: 分页信息
     * @return
     * */
-    Page<Visitor> findByNameContaining(String name, Pageable pageable);
+    List<Visitor> findByNameContaining(String name);
 
     /*
     * 分页查询游客数据
@@ -49,5 +49,8 @@ public interface VisitorDAO extends JpaRepository<Visitor,BigInteger> {
     * @return
     * */
     Page<Visitor> findAll(Pageable pageable);
+
+    @Query(value="from Visitor v where v.id in ?1")
+    Visitor findOne(BigInteger id);
 
 }

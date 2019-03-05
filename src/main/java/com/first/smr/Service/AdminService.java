@@ -1,5 +1,7 @@
 package com.first.smr.Service;
 
+import ch.qos.logback.core.encoder.EchoEncoder;
+import com.first.smr.Application;
 import com.first.smr.DAO.*;
 import com.first.smr.CommonResult;
 import com.first.smr.POJO.*;
@@ -10,16 +12,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.swing.plaf.basic.BasicIconFactory;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.sql.Date;
+import java.util.*;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
 
 @Service
 public class AdminService {
@@ -39,6 +42,10 @@ public class AdminService {
     private ALoginDao ALoginDao ;
     @Resource
     private DepartmentDao departmentDao ;
+    @Resource
+    private EvaluationDAO evaluationDAO;
+    @Resource
+    VisitorAppointmentDAO visitorAppointmentDAO;
 
 
     //检查管理员登陆
@@ -49,15 +56,79 @@ public class AdminService {
         else
             return null;
     }
+    //更改管理员手机号
+    @Transactional
+    public boolean updateAdmin(String account,Admin a){
+        Admin aa = ALoginDao.findByAccount(account);
+        aa.setPhone(a.getPhone());
+        ALoginDao.save(aa);
+        return true;
+    }
+    //更新管理员密码信息
+    @Transactional
+    public boolean adminSafe(String account,Admin a){
+        Admin aa = ALoginDao.findByAccount(account);
+        aa.setPswd(a.getPswd());
+        ALoginDao.save(aa);
+        return true;
+    }
 
     //获取公司部门列表
     public List<Department> getDepartmentList(BigInteger id){
         return departmentDao.find(id);
     }
-
+    //具体职员信息
+    public Staff getTheStaff(String jobnum){
+        return staffDAO.findByJobnum(jobnum);
+    }
     //部门职员信息
-    public List<Staff> getDepartmentStaff(String dname){
-        return staffDAO.find(dname);
+    public List<Staff> getDepartmentStaff(String dname,BigInteger cpid){
+        return staffDAO.find(dname,cpid);
+    }
+    //更新管理员人脸信息
+    public CommonResult updateFaceInfo(HttpServletRequest request,byte[] face_info){
+        CommonResult result=new CommonResult();
+        Admin aInSession1=(Admin)request.getSession().getAttribute("OAdmin");
+        Admin aInSession2=(Admin)request.getSession().getAttribute("SAdmin");
+        try{
+            if(aInSession1!=null){
+                aInSession1.setFace_info(face_info);
+                result.setMsg("更新成功");
+                // 存入session
+                request.getSession().setAttribute("OAdmin",aInSession1);
+            }else{
+                aInSession2.setFace_info(face_info);
+                result.setMsg("更新成功");
+                // 存入session
+                request.getSession().setAttribute("SAdmin",aInSession2);
+            }
+        }
+        catch(Exception e){
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("更新失败");
+        }
+        return result;
+    }
+    //具体预约信息
+    public Appointment getTheAppointment(BigInteger id){
+        return appointmentDAO.findOne(id);
+    }
+    //具体场地信息
+    public Place getThePlace(BigInteger id){
+        return placeDAO.findOne(id);
+    }
+    //具体组织信息
+    public Company getTheCompany(BigInteger id){
+        return companyDAO.findCompanyById(id);
+    }
+    //具体管理员信息
+    public Admin getTheAdmin(BigInteger id){
+        return adminDAO.findAdminById(id);
+    }
+    //具体管理员信息
+    public Visitor getTheVisitor(BigInteger id){
+        return visitorDAO.findOne(id);
     }
     //@Transactional
     /*
@@ -262,6 +333,32 @@ public class AdminService {
         return result;
     }
 
+    //系统管理员拒绝组织管理员的注册
+    public CommonResult SDisagreeOAdmin(Admin a){
+        CommonResult result=new CommonResult();
+        try{
+            boolean adminIsNull=false;
+            Admin admin=adminDAO.findAdminById(a.getId());
+            if(admin==null){
+                adminIsNull=true;
+            }
+            if(adminIsNull){
+                result.setStatus(404);
+                result.setResult("fail");
+                result.setMsg("该管理员对象不存在");
+            }
+            else {
+                admin.setState("申请失败");
+                adminDAO.save(admin);
+            }
+        }catch(Exception e){
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("修改失败");
+        }
+        return result;
+    }
+
     /*
      * 系统管理员分页查询所有组织管理员信息
      * @param pagenum: 页码（第1页为0）
@@ -272,10 +369,29 @@ public class AdminService {
     public CommonResult SFindOAdmins(int pagenum, int size, String account){
         CommonResult result=new CommonResult();
         Pageable pageable=getPageable(pagenum,size);
-        Page page;
+        List<Admin> page;
         try{
-            if(account==null) page=adminDAO.findAllByIdentity("组织管理员", pageable);
-            else page=adminDAO.findByAccountContainingAndIdentity(account, "组织管理员", pageable);
+            if(account==null) page=adminDAO.findAllByIdentity("组织管理员");
+            else page=adminDAO.findByAccountContainingAndIdentity(account, "组织管理员");
+            result.setCount(page.size());
+            result.setData(page);
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
+    }
+
+    public CommonResult SFindSAdmins(int pagenum, int size, String account){
+        CommonResult result=new CommonResult();
+        Pageable pageable=getPageable(pagenum,size);
+        List<Admin> page;
+        try{
+            if(account==null) page=adminDAO.findAllByIdentity("系统管理员");
+            else page=adminDAO.findByAccountContainingAndIdentity(account, "系统管理员");
+            result.setCount(page.size());
             result.setData(page);
         }catch (Exception e) {
             e.printStackTrace();
@@ -294,7 +410,7 @@ public class AdminService {
     public CommonResult SAddOAdmin(Admin admin){
         CommonResult result=new CommonResult();
         try{
-            if(admin.getCompanyId()==null||admin.getCompany().getName()==null){
+            if(admin.getCompanyId()==null){
                 result.setStatus(500);
                 result.setMsg("所属公司不能为空");
                 return result;
@@ -315,6 +431,38 @@ public class AdminService {
             result.setMsg("error");
         }
         return result;
+    }
+
+    /*
+     * 组织管理员申请
+     * @param admin : 管理员对象
+     * @return
+     * */
+    public boolean OAdminApply(Admin admin){
+        CommonResult result=new CommonResult();
+        try{
+            if(admin.getCompanyId()==null){
+                result.setStatus(500);
+                result.setMsg("所属公司不能为空");
+                return false;
+            }
+            admin.setIdentity("组织管理员");
+            Admin aFind=adminDAO.findByAccountAndIdentityAndCompanyId(admin.getAccount(),admin.getIdentity(),admin.getCompanyId());
+            if(aFind==null) {
+                admin.setState("申请中");
+                adminDAO.save(admin);
+            }
+            else{
+                result.setStatus(500);
+                result.setMsg("该登陆账号已存在");
+            }
+        }catch (Exception e){
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+            return false;
+        }
+        return true;
     }
 
     /*
@@ -457,6 +605,54 @@ public class AdminService {
     }
 
     /*
+     * 系统管理员寻找游客评价
+     * @param evaluation: 游客评价对象
+     * @return
+     * */
+    public CommonResult OFindEvaluations(int pagenum, int size, HttpServletRequest request){
+        CommonResult result=new CommonResult();
+        Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
+        Pageable pageable=getPageable(pagenum,size);
+        List<Evaluation> page;
+        List<Place> places;
+        List<BigInteger> placeId = new ArrayList<>();
+        try {
+            places = placeDAO.findByCompanyId(aInSession.getCompanyId());
+            for (int i = 0; i < places.size(); i++) {
+                placeId.add(places.get(i).getId());
+            }
+            page = evaluationDAO.findByCompanyId(placeId);
+            result.setCount(page.size());
+            result.setData(page);
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
+    }
+
+    /*
+     * 组织管理员删除游客评价
+     * @param evaluation: 游客评价对象
+     * @return
+     * */
+    public CommonResult ODeleteEvaluation(BigInteger id){
+        CommonResult result = new CommonResult();
+        Evaluation ee = evaluationDAO.findOne(id);
+        try {
+            evaluationDAO.delete(ee);
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
+    }
+
+    /*
     * 系统管理员分页查询所有游客信息
     * @param pagenum: 页码（第1页为0）
     * @param:size     一页大小
@@ -466,10 +662,10 @@ public class AdminService {
     public CommonResult SFindVisitors(int pagenum, int size, String name){
         CommonResult result=new CommonResult();
         Pageable pageable=getPageable(pagenum,size);
-        Page page;
+        List<Visitor> page;
         try {
-            if (name == null) page = visitorDAO.findAll(pageable);
-            else page = visitorDAO.findByNameContaining(name, pageable);
+            if (name == null) page = visitorDAO.findAll();
+            else page = visitorDAO.findByNameContaining(name);
             result.setData(page);
         }catch (Exception e) {
             e.printStackTrace();
@@ -548,10 +744,30 @@ public class AdminService {
     public CommonResult SFindCompanies(int pagenum,int size,String name){
         CommonResult result=new CommonResult();
         Pageable pageable=getPageable(pagenum,size);
-        Page page;
+        List<Company> page;
         try{
-            if(name==null) page=companyDAO.findAll(pageable);
-            else page=companyDAO.findByNameContaining(name,pageable);
+            if(name==null) page=companyDAO.findAll();
+            else page=companyDAO.findByNameContaining(name);
+            result.setCount(page.size());
+            result.setData(page);
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
+    }
+
+    //系统管理员分页查询所有公司申请记录
+    public CommonResult SFindApplyCompanies(int pagenum,int size,String name){
+        CommonResult result=new CommonResult();
+        Pageable pageable=getPageable(pagenum,size);
+        List<Company> page;
+        try{
+            if(name==null) page=companyDAO.findApplyAll();
+            else page=companyDAO.findByNameContaining2(name);
+            result.setCount(page.size());
             result.setData(page);
         }catch (Exception e) {
             e.printStackTrace();
@@ -563,11 +779,38 @@ public class AdminService {
     }
 
     /*
+     * 公司申请
+     * @param company: 公司对象
+     * @return
+     * */
+    public boolean companyApply(Company company){
+        CommonResult result = new CommonResult();
+        try{
+            Company cFind=companyDAO.findByName(company.getName());
+            if(cFind==null){
+                company.setState("申请中");
+                companyDAO.save(company);
+            }
+            else{
+                result.setStatus(500);
+                result.setMsg("该公司名已存在");
+                return false;
+            }
+        }catch (Exception e){
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+            return false;
+        }
+        return true;
+    }
+
+    /*
     * 系统管理员增加公司
     * @param company: 公司对象
     * @return
     * */
-    public CommonResult SAddCompany(Company company){
+    public boolean SAddCompany(Company company){
         CommonResult result = new CommonResult();
         try{
             Company cFind=companyDAO.findByName(company.getName());
@@ -578,13 +821,15 @@ public class AdminService {
             else{
                 result.setStatus(500);
                 result.setMsg("该公司名已存在");
+                return false;
             }
         }catch (Exception e){
             result.setStatus(500);
             result.setResult("fail");
             result.setMsg("error");
+            return false;
         }
-        return result;
+        return true;
     }
 
     /*
@@ -633,6 +878,19 @@ public class AdminService {
         return result;
     }
 
+    //拒绝申请
+    public CommonResult SDisagreeApply(Company company){
+        CommonResult result = new CommonResult();
+        Company c = companyDAO.findCompanyById(company.getId());
+        try{
+            c.setState("申请失败");
+        }catch (Exception e){
+            result.setStatus(500);
+            result.setMsg("error");
+        }
+        return result;
+    }
+
     /*
     * 系统管理员审核公司
     * */
@@ -661,11 +919,13 @@ public class AdminService {
         CommonResult result=new CommonResult();
         Pageable pageable=getPageable(pagenum,size);
         Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
-        Page page;
+        List<Place> page;
         try {
-            if (name == null) page = placeDAO.findByCompanyId(aInSession.getCompanyId(), pageable);
-            else page = placeDAO.findByNameContainingAndCompanyId(name, aInSession.getCompanyId(), pageable);
+            if (aInSession == null) System.out.println("null");
+            if (name == null) page = placeDAO.findByCompanyId(aInSession.getCompanyId());
+            else page = placeDAO.findByNameContainingAndCompanyId(name, aInSession.getCompanyId());
             result.setData(page);
+            result.setCount(page.size());
         }catch (Exception e) {
             e.printStackTrace();
             result.setStatus(500);
@@ -702,21 +962,150 @@ public class AdminService {
     }
 
     /*
-    * 组织管理员分页查询本公司的预约情况
-    * @param:pagenum: 页码（第1页为0）
-    * @param:size     一页大小
-    * @param:time     日期 格式：yyyy-MM-dd（可以为空）
-    * @param:request  HttpServletRequest对象，用来得到session
-    * @return: 查询结果集
-    * */
-    public CommonResult OFindAppointments(int pagenum, int size, Date time, HttpServletRequest request){
+     * 组织管理员分页查询本公司的预约情况
+     * @param:pagenum: 页码（第1页为0）
+     * @param:size     一页大小
+     * @param:time     日期 格式：yyyy-MM-dd（可以为空）
+     * @param:request  HttpServletRequest对象，用来得到session
+     * @return: 查询结果集
+     * */
+    public CommonResult OFindStaffAppointments(java.sql.Date time, BigInteger place_id, HttpServletRequest request){
+        CommonResult result=new CommonResult();
+        Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
+        List list = null;
+        try {
+            if(time==null&&place_id==null){
+                list=appointmentDAO.findByCompanyIdAndOrdererType(aInSession.getCompanyId(),"staff");
+                result.setData(list);
+            }
+            else if(time!=null){
+                Calendar before_cal = Calendar.getInstance();
+                Calendar after_cal = Calendar.getInstance();
+                before_cal.setTime(time);
+                after_cal.setTime(time);
+                before_cal.add(Calendar.SECOND, -1);
+                after_cal.add(Calendar.DATE,1);
+                String before_sdf = before_cal.get(Calendar.YEAR) + "-" + (before_cal.get(Calendar.MONTH)+1) + "-" + before_cal.get(Calendar.DAY_OF_MONTH) + " "
+                        + before_cal.get(Calendar.HOUR_OF_DAY) + ":" + before_cal.get(Calendar.MINUTE) + ":" + before_cal.get(Calendar.SECOND);
+                String after_sdf = after_cal.get(Calendar.YEAR) + "-" + (after_cal.get(Calendar.MONTH)+1) + "-" + after_cal.get(Calendar.DAY_OF_MONTH) + " "
+                        + after_cal.get(Calendar.HOUR_OF_DAY) + ":" + after_cal.get(Calendar.MINUTE) + ":" + after_cal.get(Calendar.SECOND);
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Timestamp before_timestamp=new Timestamp(0);
+                Timestamp after_timestamp=new Timestamp(0);
+                java.util.Date before_date = format.parse(before_sdf);
+                java.util.Date after_date = format.parse(after_sdf);
+                before_timestamp.setTime(before_date.getTime());
+                after_timestamp.setTime(after_date.getTime());
+                System.out.println(before_timestamp);
+                System.out.println(after_timestamp);
+                if(place_id==null){
+                    list=appointmentDAO.findByStartTimeAfterAndStartTimeBeforeAndCompanyIdAndOrdererType(before_timestamp, after_timestamp, aInSession.getCompanyId(),"staff");
+                    result.setData(list);
+                }
+                else if(place_id!=null){
+                    list=appointmentDAO.findByPlace_idAndStartTimeAfterAndStartTimeBeforeAndCompanyIdAndOrdererType(place_id, before_timestamp, after_timestamp, aInSession.getCompanyId(),"staff");
+                    result.setData(list);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
+    }
+
+    /*
+     * 组织管理员分页查询本公司游客的预约情况
+     * */
+    public List<VisitorAppointment> OFindVisitorAppointments(java.sql.Date time, BigInteger place_id, String state, HttpServletRequest request){
+        CommonResult result = new CommonResult();
+        Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
+        List<VisitorAppointment> list = new ArrayList<>();
+        try{
+            Timestamp before_timestamp=new Timestamp(0);
+            Timestamp after_timestamp=new Timestamp(0);
+            if(time!=null){
+                Calendar before_cal = Calendar.getInstance();
+                Calendar after_cal = Calendar.getInstance();
+                before_cal.setTime(time);
+                after_cal.setTime(time);
+                before_cal.add(Calendar.SECOND, -1);
+                after_cal.add(Calendar.DATE,1);
+                String before_sdf = before_cal.get(Calendar.YEAR) + "-" + (before_cal.get(Calendar.MONTH)+1) + "-" + before_cal.get(Calendar.DAY_OF_MONTH) + " "
+                        + before_cal.get(Calendar.HOUR_OF_DAY) + ":" + before_cal.get(Calendar.MINUTE) + ":" + before_cal.get(Calendar.SECOND);
+                String after_sdf = after_cal.get(Calendar.YEAR) + "-" + (after_cal.get(Calendar.MONTH)+1) + "-" + after_cal.get(Calendar.DAY_OF_MONTH) + " "
+                        + after_cal.get(Calendar.HOUR_OF_DAY) + ":" + after_cal.get(Calendar.MINUTE) + ":" + after_cal.get(Calendar.SECOND);
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                java.util.Date before_date = format.parse(before_sdf);
+                java.util.Date after_date = format.parse(after_sdf);
+                before_timestamp.setTime(before_date.getTime());
+                after_timestamp.setTime(after_date.getTime());
+            }
+            if(time==null && place_id==null && state==null){
+                list=visitorAppointmentDAO.findByAppointment_CompanyId(aInSession.getCompanyId());
+                result.setData(list);
+            }
+            else if(time!=null && place_id==null && state==null){
+                list=visitorAppointmentDAO.findByAppointment_StartTimeAfterAndAppointment_StartTimeBeforeAndAppointment_CompanyId(before_timestamp, after_timestamp, aInSession.getCompanyId());
+                result.setData(list);
+            }
+            else if(time==null && place_id!=null && state==null){
+                list=visitorAppointmentDAO.findByAppointment_Place_idAndAppointment_CompanyId(place_id, aInSession.getCompanyId());
+                result.setData(list);
+            }
+            else if(time==null && place_id==null && state!=null){
+                list=visitorAppointmentDAO.findByStateAndAppointment_CompanyId(state, aInSession.getCompanyId());
+                result.setData(list);
+            }
+            else if(time!=null && place_id!=null && state==null){
+                list=visitorAppointmentDAO.findByAppointment_Place_idAndAppointment_StartTimeAfterAndAppointment_StartTimeBeforeAndAppointment_CompanyId(place_id ,before_timestamp, after_timestamp, aInSession.getCompanyId());
+                result.setData(list);
+            }
+            else if(time==null && place_id!=null && state!=null){
+                list=visitorAppointmentDAO.findByStateAndAppointment_Place_idAndAppointment_CompanyId(state, place_id, aInSession.getCompanyId());
+                result.setData(list);
+            }
+            else if(time!=null && place_id==null && state!=null){
+                list=visitorAppointmentDAO.findByStateAndAppointment_StartTimeAfterAndAppointment_StartTimeBeforeAndAppointment_CompanyId(state, before_timestamp, after_timestamp, aInSession.getCompanyId());
+                result.setData(list);
+            }
+            else if(time!=null && place_id!=null && state!=null){
+                list=visitorAppointmentDAO.findByStateAndAppointment_Place_idAndAppointment_StartTimeAfterAndAppointment_StartTimeBeforeAndAppointment_CompanyId(state, place_id, before_timestamp, after_timestamp, aInSession.getCompanyId());
+                result.setData(list);
+            }
+        }catch (Exception e){
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+
+        return list;
+    }
+
+
+    /*
+     * 组织管理员分页查询申请预约情况
+     * @param:pagenum: 页码（第1页为0）
+     * @param:size     一页大小
+     * @param:time     日期 格式：yyyy-MM-dd（可以为空）
+     * @param:request  HttpServletRequest对象，用来得到session
+     * @return: 查询结果集
+     * */
+    public CommonResult OFindApplyAppointments(int pagenum, int size, Date time, HttpServletRequest request){
+        System.out.println("time:"+time);
         CommonResult result=new CommonResult();
         Pageable pageable=getPageable(pagenum,size);
         Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
-        Page page = null;
+        List<Appointment> page = null;
+        //time = null;
         try {
             if(time==null){
-                page=appointmentDAO.findByCompanyId(aInSession.getCompanyId(),pageable);
+                if(aInSession==null) System.out.println("null");
+                page=appointmentDAO.findApply(aInSession.getCompanyId());
+                System.out.println("size:"+page.size());
+                result.setCount(page.size());
                 result.setData(page);
             }
             else{
@@ -738,7 +1127,9 @@ public class AdminService {
                 before_timestamp.setTime(before_date.getTime());
                 after_timestamp.setTime(after_date.getTime());
                 if(appointmentDAO==null) System.out.println("null");
-                page=appointmentDAO.findByStartTimeAfterAndStartTimeBeforeAndCompanyId(before_timestamp, after_timestamp, aInSession.getCompanyId(), pageable);
+                page=appointmentDAO.findByStartTimeAfterAndStartTimeBeforeAndCompanyIdAndOrdererType(before_timestamp, after_timestamp, aInSession.getCompanyId(),"visitor");
+                System.out.println("appointment size:"+page.size());
+                result.setCount(page.size());
                 result.setData(page);
             }
         }catch (Exception e){
@@ -750,25 +1141,54 @@ public class AdminService {
         return result;
     }
 
+    //组织管理员同意申请
+    public CommonResult OAgreeApply(BigInteger id){
+        CommonResult result = new CommonResult();
+        try{
+            VisitorAppointment a = visitorAppointmentDAO.findVisitorAppointmentById(id);
+            a.setState("申请成功");
+            visitorAppointmentDAO.save(a);
+        }catch (Exception e){
+            result.setStatus(500);
+            result.setMsg("error");
+        }
+        return result;
+    }
+
+    //组织管理员拒绝申请
+    public CommonResult ODisagreeApply(BigInteger id){
+        CommonResult result = new CommonResult();
+        try{
+            VisitorAppointment a = visitorAppointmentDAO.findVisitorAppointmentById(id);
+            a.setState("申请失败");
+            visitorAppointmentDAO.save(a);
+        }catch (Exception e){
+            result.setStatus(500);
+            result.setMsg("error");
+        }
+        return result;
+    }
+
     /*
     * 组织管理员增加或修改场地
     * @param:place   场地对象
     * @param:request HttpServletRequest对象
     * @return:
     * */
-    public CommonResult OAddOrUpdatePlace(Place place, HttpServletRequest request){
+    public boolean OAddOrUpdatePlace(Place place, HttpServletRequest request){
         CommonResult result=new CommonResult();
         Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
         try{
             place.setCompanyId(aInSession.getCompanyId());
-            place.setCompany_name(aInSession.getCompany().getName());
+            place.setCompany(companyDAO.findCompanyById(aInSession.getCompanyId()));
             placeDAO.save(place);
         }catch(Exception e){
             result.setStatus(500);
             result.setResult("fail");
             result.setMsg("error");
+            return false;
         }
-        return result;
+        return true;
     }
 
     /*
@@ -802,6 +1222,8 @@ public class AdminService {
             staff.setCompanyId(aInSession.getCompanyId());
             staffDAO.save(staff);
         }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("datanull");
             result.setStatus(500);
             result.setMsg("error");
         }
@@ -813,8 +1235,9 @@ public class AdminService {
     * @param staff: 职员对象
     * @return
     * */
-    public CommonResult ODeleteStaff(Staff staff){
+    public CommonResult ODeleteStaff(BigInteger id){
         CommonResult result = new CommonResult();
+        Staff staff = staffDAO.findByStaffId(id);
         try {
             staffDAO.delete(staff);
         }catch (Exception e){

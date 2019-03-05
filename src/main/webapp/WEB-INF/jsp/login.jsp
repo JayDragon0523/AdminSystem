@@ -37,6 +37,14 @@
     <div class="layui-form-item">
         <button type="submit" class="layui-btn layui-block" lay-filter="login" >登录</button>
     </div>
+    <center>
+    <div class="layui-form-item">
+        <a href="http://localhost:8080/companyRegister">公司注册</a>
+    </div>
+    <div class="layui-form-item">
+        <a href="http://localhost:8080/OAdminRegister">管理员注册</a>
+    </div>
+    </center>
     <div class="layui-form-item layui-row">
         <a href="javascript:;" class="seraph icon-qq layui-col-xs4 layui-col-sm4 layui-col-md4 layui-col-lg4"></a>
         <a href="javascript:;" class="seraph icon-wechat layui-col-xs4 layui-col-sm4 layui-col-md4 layui-col-lg4"></a>

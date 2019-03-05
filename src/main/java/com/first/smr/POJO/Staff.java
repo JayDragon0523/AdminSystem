@@ -128,8 +128,4 @@ public class Staff implements Serializable {
     }
 
 
-    public String getCompany_id() {
-        return company;
-    }
-
 }

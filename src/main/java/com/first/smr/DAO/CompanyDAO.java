@@ -4,9 +4,11 @@ import com.first.smr.POJO.Company;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @Repository
 public interface CompanyDAO extends JpaRepository<Company, BigInteger> {
@@ -16,7 +18,10 @@ public interface CompanyDAO extends JpaRepository<Company, BigInteger> {
      * @param pageable: 分页信息
      * @return
      * */
-    Page<Company> findByNameContaining(String name, Pageable pageable);
+    List<Company> findByNameContaining(String name);
+
+    @Query(value="from Company c where c.name=?1 and c.state='申请中'")
+    List<Company> findByNameContaining2(String name);
 
     /*
      * 分页查询公司数据
@@ -39,4 +44,7 @@ public interface CompanyDAO extends JpaRepository<Company, BigInteger> {
     *                        否则返回null
     * */
     Company findCompanyById(BigInteger id);
+
+    @Query(value="from Company c where c.state='申请中'")
+    List<Company> findApplyAll();
 }

@@ -18,7 +18,7 @@ public class Admin implements Serializable {
     private String account;
     private String pswd;
     private String phone;
-    private String face_info;
+    private byte[] face_info;
     private String state;
     @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH},optional = false)
     @JoinColumn(name = "company_id", insertable=false, updatable=false)
@@ -80,11 +80,11 @@ public class Admin implements Serializable {
         this.phone = phone;
     }
 
-    public String getFace_info() {
+    public byte[] getFace_info() {
         return face_info;
     }
 
-    public void setFace_info(String face_info) {
+    public void setFace_info(byte[] face_info) {
         this.face_info = face_info;
     }
 

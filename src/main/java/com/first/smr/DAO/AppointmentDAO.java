@@ -14,23 +14,36 @@ import java.util.List;
 
 @Repository
 public interface AppointmentDAO extends JpaRepository<Appointment,BigInteger> {
+
     /*
-     * 根据时间公司id分页查询场地数据
+     * 根据场地id 、时间和公司id 查询预约数据
+     * */
+    List<Appointment> findByPlace_idAndStartTimeAfterAndStartTimeBeforeAndCompanyIdAndOrdererType(BigInteger place_id, Timestamp before_time, Timestamp after_time, BigInteger companyId,String orderer_Type);
+
+    /*
+     * 根据时间公司id分页查询预约数据
      * @param before_time:   前一天的最后一秒 e.g. 2018-12-21 23:59:59
      * @param after_time:    后一天的第一秒   e.g. 2018-12-23 00:00:00
      * @param companyId:     公司id
      * @param pageable:      分页信息
      * @return
      * */
-    Page<Appointment> findByStartTimeAfterAndStartTimeBeforeAndCompanyId(Timestamp before_time, Timestamp after_time, BigInteger companyId, Pageable pageable);
-
+    List<Appointment> findByStartTimeAfterAndStartTimeBeforeAndCompanyIdAndOrdererType(Timestamp before_time, Timestamp after_time, BigInteger companyId,String orderer_Type);
     /*
      * 根据公司id分页查询公司数据
      * @param companyId:  公司id
      * @param pageable:   分页信息
      * @return
      * */
-    Page<Appointment> findByCompanyId(BigInteger companyId, Pageable pageable);
+    List<Appointment> findByCompanyId(BigInteger companyId);
+
+    /*
+     * 根据公司id以及预定类别分页查询公司数据
+     * @param companyId:  公司id
+     * @param pageable:   分页信息
+     * @return
+     * */
+    List<Appointment> findByCompanyIdAndOrdererType(BigInteger companyId,String orderer_Type);
 
     //获取最短会议时长
     @Query(value = "select ((UNIX_TIMESTAMP(end_time)-UNIX_TIMESTAMP(start_time))/60)duration from appointment where type =?1 or ?2 order by duration asc limit 1",nativeQuery = true)
@@ -55,10 +68,10 @@ public interface AppointmentDAO extends JpaRepository<Appointment,BigInteger> {
     //获取所有预约会议
     List<Appointment> findByStartTimeAfter(Date now);
 
+    @Query(value="from Appointment where id=?1")
+    Appointment findOne(BigInteger id);
 
-
-
-
-
-
+    //获取所有未审核通过预约会议
+    @Query(value="from Appointment where id=?1 and state='申请中'")
+    List<Appointment> findApply(BigInteger id);
 }

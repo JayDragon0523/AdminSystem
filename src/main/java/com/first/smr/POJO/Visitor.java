@@ -62,11 +62,20 @@ public class Visitor implements Serializable {
         this.id_num = id_num;
     }
 
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
     private String name;
     private String sex;
+    private String account;
     private String pswd;
     private String phone;
     private String id_num;

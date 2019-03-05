@@ -10,7 +10,7 @@ import java.math.BigInteger;
 @Entity
 @Table(name="place")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(value={"hibernateLazyInitializer", "handler" ,"companyId","type","cost"})
+//@JsonIgnoreProperties(value={"hibernateLazyInitializer", "handler" ,"companyId","type","cost"})
 public class Place implements Serializable {
     private static final Long serialVersionUID = 4033298062475577637L;
     public Place(){}
@@ -19,7 +19,6 @@ public class Place implements Serializable {
     private BigInteger id;
     @Column(name = "company_id")
     private BigInteger companyId;
-    private String company_name;
     private String type;
     private String name;
     private String address;
@@ -27,6 +26,7 @@ public class Place implements Serializable {
     private String device;
     private String instruction;
     private String cost;
+    private String image;
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH},optional = false)
     @JoinColumn(name = "company_id",insertable=false, updatable=false)
     private Company company;
@@ -56,10 +56,6 @@ public class Place implements Serializable {
     public void setCompanyId(BigInteger companyId) {
         this.companyId = companyId;
     }
-
-    public String getCompany_name(){ return company_name;}
-
-    public void setCompany_name(String company_name){ this.company_name=company_name; }
 
     public String getType() {
         return type;
@@ -123,5 +119,13 @@ public class Place implements Serializable {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

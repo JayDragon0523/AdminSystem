@@ -2,18 +2,19 @@ package com.first.smr.POJO;
 
 import javax.persistence.Column;
 import java.io.Serializable;
+import java.math.BigInteger;
 
 public class Department_PM implements Serializable {
     @Column(name="Company_id")
-    private String company_id;
+    private BigInteger company_id;
     @Column(name="Department_name")
     private String department_name;
 
-    public String getCompanyId() {
+    public BigInteger getCompany_id() {
         return company_id;
     }
 
-    public void setCompanyId(String company_id) {
+    public void setCompany_id(BigInteger company_id) {
         this.company_id = company_id;
     }
 

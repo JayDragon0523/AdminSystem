@@ -28,7 +28,6 @@ public class Evaluation implements Serializable {
     private Timestamp time;
     private String content;
 
-
     public BigInteger getId() {
         return id;
     }

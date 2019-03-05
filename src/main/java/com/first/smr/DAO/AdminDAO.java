@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @Repository
 public interface AdminDAO extends JpaRepository<Admin, BigInteger> {
@@ -64,14 +65,12 @@ public interface AdminDAO extends JpaRepository<Admin, BigInteger> {
      * @param pageable: 分页信息
      * @return
      * */
-    Page<Admin> findByAccountContainingAndIdentity(String account, String identity, Pageable pageable);
+    List<Admin> findByAccountContainingAndIdentity(String account, String identity);
 
     /*
      * 分页查询组织管理员数据
      * @param pageable: 分页信息
      * @return
      * */
-    Page<Admin> findAllByIdentity(String identity, Pageable pageable);
-
-
+    List<Admin> findAllByIdentity(String identity);
 }

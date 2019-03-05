@@ -167,4 +167,12 @@ public class Appointment implements Serializable {
     public void setStaff(Staff staff) {
         this.staff = staff;
     }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
 }

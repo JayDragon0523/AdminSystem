@@ -55,6 +55,10 @@ public interface StaffDAO extends JpaRepository<Staff,BigInteger> {
      * */
     Page<Staff> findByCompanyId(BigInteger companyId, Pageable pageable);
 
-    @Query("select sl from Staff sl where sl.department=:dname")
-    List<Staff> find(@Param("dname") String dname);
+    //根据公司部门查找职员
+    @Query("from Staff sl where sl.department=:dname and sl.companyId=:cpid")
+    List<Staff> find(@Param("dname") String dname,@Param("cpid") BigInteger cpid);
+    //根据职工号查找职员
+    @Query("from Staff sl where sl.id=:id")
+    Staff findByStaffId(@Param("id") BigInteger id);
 }

@@ -63,7 +63,7 @@ Schedule test(String t);
      * @param pageable:   分页信息
      * @return
      * */
-    Page<Place> findByNameContainingAndCompanyId(String name, BigInteger companyId, Pageable pageable);
+    List<Place> findByNameContainingAndCompanyId(String name, BigInteger companyId);
 
     /*
      * 根据公司id分页查询公司数据
@@ -71,5 +71,8 @@ Schedule test(String t);
      * @param pageable:   分页信息
      * @return
      * */
-    Page<Place> findByCompanyId(BigInteger companyId, Pageable pageable);
+    List<Place> findByCompanyId(BigInteger companyId);
+
+    @Query(value="from Place where id=?1")
+    Place findOne(BigInteger id);
 }
