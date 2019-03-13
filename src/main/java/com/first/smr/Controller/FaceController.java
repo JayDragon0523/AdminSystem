@@ -1,6 +1,7 @@
 package com.first.smr.Controller;
 
 import com.first.smr.CommonResult;
+import com.first.smr.POJO.Attendees;
 import com.first.smr.Service.FaceService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.math.BigInteger;
+import java.util.List;
 
 @RestController
 @RequestMapping("/face")
@@ -29,6 +31,13 @@ public class FaceController {
     public  CommonResult addFaceInfo(@RequestParam("faceInfo") MultipartFile faceInfo, @RequestParam("personId") BigInteger personId, @RequestParam("from")String from)
     {
         return faceService.addFaceInfo(faceInfo,personId,from);
+    }
+
+    //考勤
+    @RequestMapping(value="/attendenceCheck",method = {RequestMethod.POST,RequestMethod.GET})
+    public  CommonResult attendenceCheck(@RequestParam("faceInfo") MultipartFile faceInfo, @RequestParam("attendeesId") BigInteger attendeesId)
+    {
+        return faceService.attendanceCheck(faceInfo,attendeesId);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.first.smr.POJO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import java.util.List;
 @Entity
 @Table(name="appointment")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(value = { "hibernateLazyInitializer", "handler" })
 public class Appointment implements Serializable {
     private static final Long serialVersionUID = 7478189957000817059L;
     public Appointment(){}
@@ -26,34 +28,40 @@ public class Appointment implements Serializable {
     @Column(name = "end_time",nullable = false)
     private Timestamp endTime;
     private BigInteger place_id;
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH},optional = false)
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH},optional = false)
     @JoinColumn(name = "place_id",insertable=false, updatable=false)
-    private Company place;
+    private Place place;
     private String place_name;
     @Column(name = "company_id")
     private BigInteger companyId;
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH},optional = false)
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH},optional = false)
     @JoinColumn(name = "company_id",insertable=false, updatable=false)
     private Company company;
     private String introduction;
     private String type;
     private int duration;
+    @Transient
+    private String stime;
+    @Transient
+    private String etime;
 
     @OneToMany(mappedBy = "appointment",cascade={CascadeType.ALL},fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Attendees> attendees;
 
-    private String state;
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH},optional = false)
+
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH},optional = false)
     @JoinColumn(name = "orderer_id",insertable=false, updatable=false)
     private Visitor visitor;
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH},optional = false)
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH},optional = false)
     @JoinColumn(name = "orderer_id",insertable=false, updatable=false)
     private Staff staff;
 
     public Timestamp getStartTime() {
         return startTime;
     }
+
+
     public void setStartTime(Timestamp startTime) {
         this.startTime = startTime;
     }
@@ -64,7 +72,6 @@ public class Appointment implements Serializable {
     public void setEndTime(Timestamp endTime) {
         this.endTime = endTime;
     }
-
 
     public String getType() {
         return type;
@@ -101,6 +108,7 @@ public class Appointment implements Serializable {
         this.orderer_id = orderer_id;
     }
 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public BigInteger getPlace_id() {
         return place_id;
     }
@@ -108,11 +116,11 @@ public class Appointment implements Serializable {
         this.place_id = place_id;
     }
 
-    public Company getPlace() {
+    public Place getPlace() {
         return place;
     }
 
-    public void setPlace(Company place) {
+    public void setPlace(Place place) {
         this.place = place;
     }
 
@@ -168,11 +176,19 @@ public class Appointment implements Serializable {
         this.staff = staff;
     }
 
-    public String getState() {
-        return state;
+    public String getStime() {
+        return stime;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setStime(String stime) {
+        this.stime = stime;
+    }
+
+    public String getEtime() {
+        return etime;
+    }
+
+    public void setEtime(String etime) {
+        this.etime = etime;
     }
 }

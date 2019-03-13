@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
@@ -72,10 +73,7 @@ public class AdminController {
     @RequestMapping(value="/UploadFaceInfo",method= RequestMethod.POST)
     public ModelAndView testUploadFile(HttpServletRequest request, MultipartHttpServletRequest multiReq) throws IOException {
         MultipartFile mf = multiReq.getFile("file");
-//		String suffix  = mf.getOriginalFilename().substring(mf.getOriginalFilename().lastIndexOf(".")+1);
-//		System.out.println(suffix);
-        String strPath = "D:\\AdminSystem\\src\\main\\webapp\\data\\faceInfo\\";
-
+        String strPath = "D:\\masterSpring\\AdminSystem\\src\\main\\webapp\\data\\faceInfo\\";
         if (mf.isEmpty()) {
             File f = new File(strPath + "\\" + "无新图片" + ".txt");
             try {
@@ -122,6 +120,18 @@ public class AdminController {
         Staff s =admin.getTheStaff(jobnum);
         request.getSession().setAttribute("staff",s);
         StringBuffer xml = new StringBuffer("<result>");
+        xml.append("<staffInfo>");
+        xml.append("<id>").append(s.getId()).append("</id>");
+        xml.append("<name>").append(s.getName()).append("</name>");
+        xml.append("<sex>").append(s.getSex()).append("</sex>");
+        xml.append("<companyId>").append(s.getCompanyId()).append("</companyId>");
+        xml.append("<jobnum>").append(s.getJobnum()).append("</jobnum>");
+        xml.append("<department>").append(s.getDepartment()).append("</department>");
+        xml.append("<pswd>").append(s.getPswd()).append("</pswd>");
+        xml.append("<id_num>").append(s.getCompanyId()).append("</id_num>");
+        xml.append("<phone>").append(s.getPhone()).append("</phone>");
+        xml.append("<face_info>").append(s.getFace_info()).append("</face_info>");
+        xml.append("</staffInfo>");
         xml.append("<status>1</status>");
         xml.append("<func>setStaffSuccess();</func>");
         xml.append("</result>");
@@ -398,6 +408,47 @@ public class AdminController {
         sendResponse(response, xml.toString());
     }
 
+    //将注册时的公司信息存入session
+    @RequestMapping(value="/setCompanyInfoTemp",method = {RequestMethod.GET,RequestMethod.POST})
+    public void setCompanyInfoTemp(Company c, HttpServletRequest request, HttpServletResponse response, MultipartRequest multiReq) throws ServletException, IOException {
+        request.getSession().setAttribute("company",c);
+        MultipartFile mf = multiReq.getFile("file");
+        String strPath = "..//..//..//..//..//..//webapp//data//companyImage//" + c.getId() + c.getName();
+        if (mf.isEmpty()) {
+            File f = new File(strPath + "//" + "无营业执照上传" + ".txt");
+            try {
+                FileWriter fw = new FileWriter(f);
+                fw.write("未上传文件");
+                fw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            File ee = new File(strPath);
+            if (!ee.exists())
+                ee.mkdirs();
+            mf.transferTo(new File(strPath+"//"+mf.getOriginalFilename()));
+        }
+//        request.getSession().setAttribute("company",c);
+//        StringBuffer xml = new StringBuffer("<result>");
+//        xml.append("<status>1</status>");
+//        xml.append("<func>setCompanySuccess();</func>");
+//        xml.append("</result>");
+//        sendResponse(response, xml.toString());
+    }
+
+    // 提交注册时session中的公司信息
+    // 必须参数 name,address,register_num,head_name,head_phone  可选参数  introduction
+    @RequestMapping(value = "/UploadCompanyInfo")
+    public  ModelAndView UploadCompanyInfo(HttpServletRequest request){
+        Company company = (Company) request.getSession().getAttribute("company");
+        if (admin.SAddCompany(company))
+            return null;
+        else
+            return new ModelAndView("errorPage","error","添加公司信息失败");
+    }
+
+
     /************************************/
     /*             场地管理             */
     /************************************/
@@ -405,31 +456,61 @@ public class AdminController {
     //进行场地图片的上传
     @RequestMapping(value="/imagesUpload",method= RequestMethod.POST)
     public ModelAndView testUploadFile(HttpServletRequest request, MultipartHttpServletRequest multiReq,Place place) throws IOException {
-        if(admin.OAddOrUpdatePlace(place,request)) {
-            MultipartFile mf = multiReq.getFile("file");
+        try {
+            admin.OAddPlace(place,request);
+            List<MultipartFile> mf = multiReq.getFiles("file");
             String strPath = "D:\\masterSpring\\AdminSystem\\src\\main\\webapp\\data\\placeImage\\" + place.getId() + place.getName();
-            if (mf.isEmpty()) {
-                File f = new File(strPath + "\\" + "该场地无预览" + ".txt");
-                try {
-                    FileWriter fw = new FileWriter(f);
-                    fw.write("管理员未上传文件");
-                    fw.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+            String relPath = "/src/main/webapp/data/placeImage/" + place.getId() + place.getName();
+            List<PlaceImage> placeImages = new ArrayList<>();
+            for (int i = 0; i < mf.size(); i++) {
+                PlaceImage placeImage = new PlaceImage();
+                if (mf.get(i).isEmpty()) {
+                    File f = new File(strPath + "\\" + "该场地无预览" + ".txt");
+                    try {
+                        FileWriter fw = new FileWriter(f);
+                        fw.write("管理员未上传文件");
+                        fw.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    File ee = new File(strPath);
+                    if (!ee.exists())
+                        ee.mkdirs();
+                    mf.get(i).transferTo(new File(strPath + "\\" + mf.get(i).getOriginalFilename()));
+                    placeImage.setPlaceId(place.getId());
+                    placeImage.setPortrait(relPath + '/' + mf.get(i).getOriginalFilename());
+                    placeImages.add(placeImage);
                 }
-            } else {
-                File ee = new File(strPath);
-                if (!ee.exists())
-                    ee.mkdirs();
-                mf.transferTo(new File(strPath+"\\"+mf.getOriginalFilename()));
-                place.setImage(strPath+"\\"+mf.getOriginalFilename());
-                admin.OAddOrUpdatePlace(place,request);
             }
-        }
-        else
+            admin.OAddPlaceImages(placeImages);
+        }catch (Exception e){
+            e.printStackTrace();
             return new ModelAndView("errorPage");
+        }
         return null;
     }
+
+    // 组织管理员增加场地图片
+    @RequestMapping(value = "/OAddPlaceImages", method = RequestMethod.POST)
+    public CommonResult OAddPlaceImages(List<PlaceImage> placeImages){
+        return admin.OAddPlaceImages(placeImages);
+    }
+
+    //组织管理员设置会议室相关参数
+    @RequestMapping(value = "/setScheduleConfig",method = RequestMethod.POST)
+    public CommonResult setScheduleConfig(ScheduleConfig scheduleConfig)
+    {
+        return admin.setScheduleConfig(scheduleConfig);
+    }
+
+    //组织管理员修改会议室相关参数
+    @RequestMapping(value = "/alterScheduleConfig",method=RequestMethod.POST)
+    public CommonResult alterScheduleConfig(ScheduleConfig scheduleConfig)
+    {
+        return admin.updateScheduleConfig(scheduleConfig);
+    }
+
 
     // 组织管理员分页查询本公司的场地信息
     // 无必须参数
@@ -445,6 +526,11 @@ public class AdminController {
     public boolean OAddOrUpdatePlace(Place place, HttpServletRequest request){
         return admin.OAddOrUpdatePlace(place, request);}
 
+    // 组织管理员修改场地
+    // 必须参数 id,name,address,type 可选参数 introduction,device,instruction,cost,capacity,location
+    @RequestMapping(value = "/OUpdatePlace", method = RequestMethod.POST)
+    public CommonResult OUpdatePlace(Place place, HttpServletRequest request){ return admin.OUpdatePlace(place, request);}
+
     // 组织管理员删除场地
     // 必须参数 id
     @RequestMapping(value = "/ODeletePlace")
@@ -456,6 +542,17 @@ public class AdminController {
         Place p = admin.getThePlace(id);
         request.getSession().setAttribute("place",p);
         StringBuffer xml = new StringBuffer("<result>");
+        xml.append("<placeInfo>");
+        xml.append("<id>").append(p.getId()).append("</id>");
+        xml.append("<type>").append(p.getType()).append("</type>");
+        xml.append("<name>").append(p.getName()).append("</name>");
+        xml.append("<address>").append(p.getAddress()).append("</address>");
+        xml.append("<capacity>").append(p.getCapacity()).append("</capacity>");
+        xml.append("<introduction>").append(p.getIntroduction()).append("</introduction>");
+        xml.append("<device>").append(p.getDevice()).append("</device>");
+        xml.append("<instruction>").append(p.getInstruction()).append("</instruction>");
+        xml.append("<cost>").append(p.getCost()).append("</cost>");
+        xml.append("</placeInfo>");
         xml.append("<status>1</status>");
         xml.append("<func>setPlaceSuccess();</func>");
         xml.append("</result>");
@@ -467,10 +564,10 @@ public class AdminController {
     /************************************/
 
     // 组织管理员分页查询本公司的职员信息
-    @RequestMapping(value = "/OFindStaffs",method = RequestMethod.GET)
-    public CommonResult OFindStaffs(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int limit, @RequestParam(required = false) String name, HttpServletRequest request){
-        return admin.OFindStaffs(page, limit, name, request);
-    }
+//    @RequestMapping(value = "/OFindStaffs",method = RequestMethod.GET)
+//    public CommonResult OFindStaffs(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int limit, @RequestParam(required = false) String name, HttpServletRequest request){
+//        return admin.OFindStaffs(page, limit, name, request);
+//    }
 
     // 组织管理员增加或修改职员信息
     // 增加必须参数 department,id_num,jobnum,name,phone,pswd
@@ -492,13 +589,36 @@ public class AdminController {
     /*             预约管理             */
     /************************************/
 
+    //获取会议人数
+    @RequestMapping(value = "/queryAttendeesList", method = RequestMethod.GET)
+    public void queryPeopleNum(BigInteger id, HttpServletResponse response)
+            throws ServletException, IOException {
+        List<Attendees> resultList = admin.getPeopleNum(id);
+        StringBuffer xml = new StringBuffer("<result>");
+        xml.append("<num>").append(resultList.size()).append("</num>");
+        xml.append("<status>1</status>");
+        xml.append("<func>retrunPeopleNum()</func>");
+        xml.append("</result>");
+        sendResponse(response, xml.toString());
+    }
+
     //将预约信息存入session
     @RequestMapping(value="/setAppointment",method = {RequestMethod.GET,RequestMethod.POST})
     public void setAppointment(BigInteger id,HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
         Appointment a = admin.getTheAppointment(id);
-        System.out.println(a.getIntroduction());
         request.getSession().setAttribute("appointment",a);
         StringBuffer xml = new StringBuffer("<result>");
+        xml.append("<appointmentInfo>");
+        xml.append("<id>").append(a.getId()).append("</id>");
+        xml.append("<orderer_id>").append(a.getOrderer_id()).append("</orderer_id>");
+        xml.append("<ordererType>").append(a.getOrdererType()).append("</ordererType>");
+        xml.append("<startTime>").append(a.getStartTime()).append("</startTime>");
+        xml.append("<endTime>").append(a.getEndTime()).append("</endTime>");
+        xml.append("<place_id>").append(a.getPlace_id()).append("</place_id>");
+        xml.append("<place_name>").append(a.getPlace_name()).append("</place_name>");
+        xml.append("<companyId>").append(a.getCompanyId()).append("</companyId>");
+        xml.append("<type>").append(a.getType()).append("</type>");
+        xml.append("</appointmentInfo>");
         xml.append("<status>1</status>");
         xml.append("<func>setAppointmentSuccess();</func>");
         xml.append("</result>");
@@ -515,12 +635,14 @@ public class AdminController {
     @RequestMapping(value = "/OFindVisitorAppointments", method = RequestMethod.GET)
     public void OFindVisitorAppointments(@RequestParam(required = false) Date time, @RequestParam(required = false) BigInteger place_id, @RequestParam(required = false) String state, HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
         List<VisitorAppointment> resultList = admin.OFindVisitorAppointments(time,place_id,state,request);
+        System.out.println(resultList.size());
         StringBuffer xml = new StringBuffer();
         xml.append("{");
         xml.append("\"code\":0,\"msg\":\"\",\"count\": " + resultList.size() + ",\"data\":[");
         for (int i = 0; i < resultList.size(); i++) {
             VisitorAppointment temp = resultList.get(i);
             xml.append("{\"id\":\"" + temp.getId() + "\",\"orderer_id\":\" " + temp.getAppointment().getOrderer_id() +
+                    "\",\"appointment_id\":\"" + temp.getAppointment_id() +"\",\"duration\":\"" + temp.getAppointment().getDuration()+
                     "\",\"ordererType\":\"" + temp.getAppointment().getOrdererType() + "\",\"startTime\":\"" + temp.getAppointment().getStartTime() +
                     "\",\"endTime\":\"" + temp.getAppointment().getEndTime() + "\",\"place_id\":\"" + temp.getAppointment().getPlace_id() +
                     "\",\"place_name\":\"" + temp.getAppointment().getPlace_name()+"\",\"companyId\":\"" + temp.getAppointment().getCompanyId()+
@@ -541,15 +663,25 @@ public class AdminController {
 
     // 组织管理员同意申请预约申请
     @RequestMapping(value = "/OAgreeApply")
-    public  CommonResult OAgreeApply(BigInteger id){
+    public  CommonResult OAgreeApply(BigInteger id,HttpServletResponse response) throws ServletException, IOException {
         CommonResult result = admin.OAgreeApply(id);
+        StringBuffer xml = new StringBuffer("<result>");
+        xml.append("<status>1</status>");
+        xml.append("<func>refreshVisitorAppointmentList();</func>");
+        xml.append("</result>");
+        sendResponse(response, xml.toString());
         return result;
     }
 
     // 组织管理员拒绝申请预约申请
     @RequestMapping(value = "/ODisagreeApply")
-    public  CommonResult ODisagreeApply(BigInteger id){
+    public  CommonResult ODisagreeApply(BigInteger id,HttpServletResponse response) throws ServletException, IOException {
         CommonResult result = admin.ODisagreeApply(id);
+        StringBuffer xml = new StringBuffer("<result>");
+        xml.append("<status>1</status>");
+        xml.append("<func>refreshVisitorAppointmentList();</func>");
+        xml.append("</result>");
+        sendResponse(response, xml.toString());
         return result;
     }
 
@@ -560,11 +692,18 @@ public class AdminController {
     @RequestMapping(value = "/OAddOrUpdateAppointment", method = RequestMethod.POST)
     public CommonResult OAddOrUpdateAppointment(Appointment appointment, HttpServletRequest request){ return admin.OAddOrUpdateAppointment(appointment, request);}
 
-    // 组织管理员删除预约信息
+    // 组织管理员删除职员预约信息
     // 必须参数 id
     @RequestMapping(value = "/ODeleteAppointment", method = RequestMethod.POST)
     public CommonResult ODeleteAppointment(Appointment appointment){
         return admin.ODeleteAppointment(appointment);
+    }
+
+    // 组织管理员删除游客预约信息
+    // 必须参数 id
+    @RequestMapping(value = "/ODeleteVisitorAppointment", method = RequestMethod.POST)
+    public CommonResult ODeleteVisitorAppointment(VisitorAppointment visitorAppointment){
+        return admin.ODeleteVisitorAppointment(visitorAppointment);
     }
 
     // 组织管理员审核预约

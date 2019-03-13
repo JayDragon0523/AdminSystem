@@ -3,9 +3,12 @@ package com.first.smr.Service;
 import com.first.smr.CommonResult;
 import com.first.smr.DAO.PlaceDAO;
 import com.first.smr.DAO.VisitorDAO;
+import com.first.smr.DAO.VisitorScheduleDAO;
+import com.first.smr.POJO.Visitor;
+import com.first.smr.POJO.VisitorSchedule;
 import com.first.smr.Util.RandomUtil;
 import com.first.smr.Util.SendUtil;
-import com.first.smr.POJO.Visitor;
+import org.omg.CORBA.COMM_FAILURE;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,11 +25,12 @@ public class VisitorService {
     VisitorDAO visitorDAO;
     @Resource
     PlaceDAO placeDAO;
+    @Resource
+    VisitorScheduleDAO visitorScheduleDAO;
     @Transactional
-    /*登录*/
 
     //账号登录
-    public CommonResult accountLogin(String phone, String pswd)
+    public CommonResult accountLogin(String phone,String pswd)
     {
         CommonResult result=new CommonResult();
         try
@@ -37,6 +41,16 @@ public class VisitorService {
                 result.setMsg("用户不存在或账号错误");
                 result.setResult("fail");
             }
+            else
+            {
+                result.setMsg("用户存在");
+                if(temp.getFace_info()!=null)
+                    temp.setIdentified(true);
+                else
+                    temp.setIdentified(false);
+                result.setData(temp);
+            }
+            /*
             else if(temp.getPswd().equals(pswd))
             {
                 result.setMsg("登录成功");
@@ -46,16 +60,50 @@ public class VisitorService {
             {
                 result.setMsg("密码错误");
                 result.setResult("fail");
-            }
+            }*/
 
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             result.setStatus(500);
             result.setMsg("登录失败");
             result.setResult("fail");
         }
         return result;
+    }
+
+    //修改密码
+    @Transactional
+    public CommonResult alterPass(BigInteger visitorId,String oldPass,String newPass)
+    {
+        CommonResult result=new CommonResult();
+        try
+        {
+            if(newPass==null)
+            {
+                result.setMsg("密码不能为空");
+                result.setResult("fail");
+            }
+            else {
+                Visitor visitor = visitorDAO.getOne(visitorId);
+                if (visitor.getPswd().equals(oldPass)) {
+                    visitor.setPswd(newPass);
+                    result.setMsg("修改密码成功");
+                } else {
+                    result.setMsg("原密码不正确");
+                    result.setResult("fail");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            result.setMsg("修改密码失败");
+            result.setResult("fail");
+            result.setStatus(500);
+        }
+        return  result;
     }
 
     //游客注册
@@ -126,6 +174,32 @@ public class VisitorService {
             e.printStackTrace();
             result.setStatus(500);
             result.setMsg("信息发送失败");
+            result.setResult("fail");
+        }
+        return result;
+    }
+
+    //获取场地时间表
+    public CommonResult getPlaceSchedule(BigInteger placeId)
+    {
+        CommonResult result=new CommonResult();
+        try{
+            List<VisitorSchedule> visitorScheduleList=visitorScheduleDAO.findAllByPlaceId(placeId);
+            if(visitorScheduleList.size()==0)
+            {
+                result.setMsg("该商家未设置开放时间");
+                result.setResult("fail");
+            }
+            else {
+                result.setMsg("获取场地时间表成功");
+                result.setData(visitorScheduleList);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            result.setStatus(500);
+            result.setMsg("获取场地时间表失败");
             result.setResult("fail");
         }
         return result;

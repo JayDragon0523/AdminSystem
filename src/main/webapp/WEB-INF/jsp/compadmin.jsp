@@ -37,9 +37,11 @@
                     ${sessionScope.OAdmin.getId_num()}
                 </a>
                 <dl class="layui-nav-child">
-                    <dd><a href="javascript:;" onclick="myInfoPage();">基本资料</a></dd>
+                    <dd><a href="javascript:;" onclick="myInfoPage();">个人资料</a></dd>
                     <dd><a href="javascript:;" onclick="mySafePage();">安全设置</a></dd>
                     <dd><a href="javascript:;" onclick="myFacePage();">人脸信息</a></dd>
+                    <dd><a href="javascript:;" onclick="myCompanyPage();">公司信息</a></dd>
+                    <dd><a href="javascript:;" onclick="myMeetingPage();">会议信息</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item"><a href="http://localhost:8080">注销</a></li>
@@ -51,11 +53,13 @@
             <ul class="layui-nav layui-nav-tree"  lay-filter="some">
 
                 <li class="layui-nav-item layui-nav-itemed">
-                    <a class="" href="javascript:;">个人信息</a>
+                    <a class="" href="javascript:;">信息管理</a>
                     <dl class="layui-nav-child">
-                        <dd><a href="javascript:;" onclick="myInfoPage();">基本资料</a></dd>
+                        <dd><a href="javascript:;" onclick="myInfoPage();">个人资料</a></dd>
                         <dd><a href="javascript:;" onclick="mySafePage();">安全设置</a></dd>
                         <dd><a href="javascript:;" onclick="myFacePage();">人脸信息</a></dd>
+                        <dd><a href="javascript:;" onclick="myCompanyPage();">公司信息</a></dd>
+                        <dd><a href="javascript:;" onclick="myMeetingPage();">会议信息</a></dd>
                     </dl>
                 </li>
 
@@ -75,9 +79,9 @@
                 <li class="layui-nav-item">
                     <a href="javascript:;">出租管理</a>
                     <dl class="layui-nav-child" id="rentoutList">
-                        <dd><a href="javascript:;" onclick="myRentPage();rent1();auditingAppointment();" id="reviewOrderListSp">审核预约申请</a></dd>
+                        <dd><a href="javascript:;" onclick="myRentPage();rent1();auditingAppointment();" id="reviewOrderListSp">审核游客预约申请</a></dd>
                         <dd><a href="javascript:;" onclick="myRentPage();rent2();" id="askForPayListSp">申请索赔</a></dd>
-                        <dd><a href="javascript:;" onclick="myRentPage();rent3();remarkVisitor();" id="remarkListSp">游客评价</a></dd>
+                        <dd><a href="javascript:;" onclick="myRentPage();rent3();remarkVisitor();" id="remarkListSp">查看游客评价</a></dd>
                     </dl>
                 </li>
             </ul>
@@ -106,7 +110,6 @@
                     <input type="tel" style="width: 500px" name="phone" lay-verify="required|phone" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getPhone()}">
                 </div>
             </div>
-
             <input type="hidden" name="password" value="${sessionScope.OAdmin.getPswd()}"/>
             <div class="layui-form-item" align="center">
                 <div class="layui-inline">
@@ -153,6 +156,128 @@
                     <iframe name="frame1" frameborder="0" height="40"></iframe>
                 </div>
             </center>
+        </form>
+    </div>
+    <div id="companyPage" class="layui-body" style="background-color: rgb(242,242,242);display:none;">
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+            <legend align="center">公司信息</legend>
+        </fieldset>
+        <form class="layui-form" action="/admin/updateCompanyInfo" method="post" target="teacherInfoFrame">
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left">公司名称</label>
+                    <input type="text" style="width: 500px"  lay-verify="required" autocomplete="off" class="layui-input" disabled="true" value="${sessionScope.OAdmin.getCompany().getName()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left">公司地址</label>
+                    <input type="text" style="width: 500px" name="address" lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getCompany().getAddress()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left">注册号</label>
+                    <input type="text" style="width: 500px"  lay-verify="required" autocomplete="off" class="layui-input" disabled="true" value="${sessionScope.OAdmin.getCompany().getRegister_num()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left">代表人姓名</label>
+                    <input type="text" style="width: 500px"  name="head_name" lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getCompany().getHead_name()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left ">联系方式</label>
+                    <input type="tel" style="width: 500px" name="head_phone" lay-verify="required|phone" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getCompany().getHead_phone()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left ">开始时间</label>
+                    <input type="tel" style="width: 500px" name="open_time" lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getCompany().getOpen_time()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left ">结束时间</label>
+                    <input type="tel" style="width: 500px" name="close_time" lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getCompany().getClose_time()}">
+                </div>
+            </div>
+            <div class="layui-form-item" align="center">
+                <div class="layui-inline">
+                    <button class="layui-btn" type="submit" lay-submit="" lay-filter="demo1">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div id="meetingPage" class="layui-body" style="background-color: rgb(242,242,242);display:none;">
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+            <legend align="center">会议信息</legend>
+        </fieldset>
+        <form class="layui-form" action="/admin/setScheduleConfig" method="post" target="teacherInfoFrame">
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left">公司id</label>
+                    <input type="text" style="width: 500px"  lay-verify="required" autocomplete="off" class="layui-input" disabled="true" value="${sessionScope.OAdmin.getCompany().getId()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left">短时会议时长</label>
+                    <input type="text" style="width: 500px" name="sduration" lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getScheduleConfig().getSduration()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left">中时会议时长</label>
+                    <input type="text" style="width: 500px" name="mduration" lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getScheduleConfig().getMduration()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left">短时会议时间片</label>
+                    <input type="text" style="width: 500px"  name="sSchedule" lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getScheduleConfig().getsSchedule()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left ">中时会议时间片</label>
+                    <input type="tel" style="width: 500px" name="mSchedule" lay-verify="required|phone" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getScheduleConfig().getmSchedule()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left ">长时会议时间片</label>
+                    <input type="tel" style="width: 500px" name="lSchedule" lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getScheduleConfig().getlSchedule()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left ">容量标准</label>
+                    <input type="tel" style="width: 500px" name="capacity" lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getScheduleConfig().getCapacity()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left ">开放时间</label>
+                    <input type="tel" style="width: 500px" name="start" lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getScheduleConfig().getStart()}">
+                </div>
+            </div>
+            <div class="layui-form-item"align="center" >
+                <div class="layui-inline">
+                    <label class="layui-form-label" align="left ">关闭时间</label>
+                    <input type="tel" style="width: 500px" name="end" lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.OAdmin.getScheduleConfig().getEnd()}">
+                </div>
+            </div>
+            <div class="layui-form-item" align="center">
+                <div class="layui-inline">
+                    <button class="layui-btn" type="submit" lay-submit="" lay-filter="demo1">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
         </form>
     </div>
     <div id="employeeInfoPage" class="layui-body" style="background-color: rgb(242,242,242);display:block;">
@@ -237,6 +362,7 @@
                                     <input type="password" name="pswd" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
                                 </div>
                             </div>
+                            <input type="hidden" id="isIdentified" name="isIdentified" value="false">
                             <div class="layui-form-item">
                                 <button type="submit" id="messageFormSubmit" class="layui-btn" onclick="setTimeout(upMessage,'1000');">确认添加</button>
                                 <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset">重置</button>
@@ -250,7 +376,7 @@
                     <%--查找职员--%>
                     <div class="layui-tab-item">
                         <div class="layui-form-item">
-                            <label class="layui-form-label">输入工号</label>
+                            <label class="layui-form-label">输入工号:</label>
                             <div class="layui-input-block">
                                 <input type="text" name="jobnum" id="jobnum" autocomplete="off" placeholder="请输入职员工号" class="layui-input">
                             </div>
@@ -270,26 +396,25 @@
                             <div class="layui-form-item">
                                 <label class="layui-form-label">职员工号</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="jobnum" required  lay-verify="required"  autocomplete="off" class="layui-input" value="${sessionScope.staff.getJobnum()}">
+                                    <input type="text" name="jobnum" id="jobnumChange" required  lay-verify="required"  autocomplete="off" class="layui-input" >
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">职员姓名</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="name" required  lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.staff.getName()}">
+                                    <input type="text" name="name" id="name" required  lay-verify="required" autocomplete="off" class="layui-input" >
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">职员性别</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="sex" required  lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.staff.getSex()}">
+                                    <input type="text" name="sex" id="sex" required  lay-verify="required" autocomplete="off" class="layui-input">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">部门</label>
                                 <div class="layui-input-block">
-                                    <select name="department" lay-filter="aihao">
-                                        <option value="${sessionScope.staff.getDepartment()}">${sessionScope.staff.getDepartment()}</option>
+                                    <select name="department" id="department" lay-filter="aihao">
                                         <option value="Consulting" selected="">Consulting</option>
                                         <option value="Human Resources">Human Resources</option>
                                     </select>
@@ -298,27 +423,19 @@
                             <div class="layui-form-item">
                                 <label class="layui-form-label">身份证号</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="id_num" required  lay-verify="required" placeholder="请输入身份证号" autocomplete="off" class="layui-input" value="${sessionScope.staff.getId_num()}">
+                                    <input type="text" name="id_num" id="id_num" required  lay-verify="required" placeholder="请输入身份证号" autocomplete="off" class="layui-input" >
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">联系方式</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="phone" required  lay-verify="required" placeholder="请输入联系方式" autocomplete="off" class="layui-input" value="${sessionScope.staff.getPhone()}">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <div class="layui-inline">
-                                    <label class="layui-form-label">人脸信息</label>
-                                    <div class="layui-input-block">
-                                        <input type="text" class="layui-input" name="face_info" placeholder="人脸图片地址" value="${sessionScope.staff.getFace_info()}"/>
-                                    </div>
+                                    <input type="text" name="phone" id="phone" required  lay-verify="required" placeholder="请输入联系方式" autocomplete="off" class="layui-input" >
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">登陆密码</label>
                                 <div class="layui-input-block">
-                                    <input type="password" name="pswd" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input" value="${sessionScope.staff.getPswd()}">
+                                    <input type="password" name="pswd" id="pswd" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input" >
                                 </div>
                             </div>
                             <div class="layui-form-item">
@@ -343,6 +460,7 @@
                     <li id="staffDetailAppointment">职员预约详情</li>
                     <li id="visitorDetailAppointment">游客预约详情</li>
                     <li id="updateAppointment" style="display:none;">预约信息修改</li>
+                    <li id="changeAppointment">调度页面</li>
                 </ul>
                 <div class="layui-tab-content" style="height: 100px;">
                     <%--职员预约详情--%>
@@ -358,6 +476,11 @@
                                 </div>
                             </div>
                             <table class="layui-hide" id="staffAppointment" lay-filter="staffAppointment"></table>
+                            <script type="text/html" id="appointmentOP">
+                                <a class="layui-btn layui-btn-xs" lay-event="update">修改</a>
+                                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>
+                                <a class="layui-btn layui-btn-xs" lay-event="change">调度</a>
+                            </script>
                         </div>
                     </div>
                     <%--游客预约详情--%>
@@ -381,20 +504,20 @@
                             <div class="layui-form-item">
                                 <label class="layui-form-label">id</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="id" required  lay-verify="required"  autocomplete="off" class="layui-input" value="${sessionScope.appointment.getId()}">
+                                    <input type="text" name="id" id="appointmentId" required  lay-verify="required"  autocomplete="off" class="layui-input" value="${sessionScope.appointment.getId()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">预约者id</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="orderer_id" required  lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.appointment.getOrderer_id()}">
+                                    <input type="text" name="orderer_id" id="orderer_id" required  lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.appointment.getOrderer_id()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">预约者类型</label>
                                 <div class="layui-input-block">
-                                    <select name="ordererType" lay-filter="aihao">
-                                        <option value="${sessionScope.appointment.getOrdererType()}">${sessionScope.appointment.getOrdererType()}</option>
+                                    <select name="ordererType" id="ordererType" lay-filter="aihao">
+                                        <%--<option value="${sessionScope.appointment.getOrdererType()}">${sessionScope.appointment.getOrdererType()}</option>--%>
                                         <option value="staff">staff</option>
                                         <option value="visitor">visitor</option>
                                     </select>
@@ -403,37 +526,37 @@
                             <div class="layui-form-item">
                                 <label class="layui-form-label">开始时间</label>
                                 <div class="layui-input-block">
-                                    <input type="text" class="layui-input" name="startTime" placeholder="yyyy-MM-dd" value="${sessionScope.appointment.getStartTime()}">
+                                    <input type="text" class="layui-input" name="startTime" id="startTime" placeholder="yyyy-MM-dd" value="${sessionScope.appointment.getStartTime()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">结束时间</label>
                                 <div class="layui-input-block">
-                                    <input type="text" class="layui-input" name="endTime" placeholder="yyyy-MM-dd" value="${sessionScope.appointment.getEndTime()}">
+                                    <input type="text" class="layui-input" name="endTime" id="endTime" placeholder="yyyy-MM-dd" value="${sessionScope.appointment.getEndTime()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">预约场地id</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="place_id" required  lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.appointment.getPlace_id()}">
+                                    <input type="text" name="place_id" id="place_id" required  lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.appointment.getPlace_id()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">预约场地名</label>
                                 <div class="layui-input-block">
-                                    <input type="text" class="layui-input" name="place_name" value="${sessionScope.appointment.getPlace_name()}"/>
+                                    <input type="text" class="layui-input" name="place_name" id="place_name" value="${sessionScope.appointment.getPlace_name()}"/>
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">预约者公司id</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="companyId" required lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.appointment.getCompanyId()}">
+                                    <input type="text" name="companyId" id="companyId" required lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.appointment.getCompanyId()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">场地类型</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="type" required lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.appointment.getType()}">
+                                    <input type="text" name="type" id="type" required lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.appointment.getType()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
@@ -441,6 +564,18 @@
                                 <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset4">重置</button>
                             </div>
                         </form>
+                    </div>
+                    <%--手动调度页面--%>
+                    <div class="layui-tab-item" id="changePlaceItem">
+                        <fieldset id="changePlaceSpan" class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                            <legend id="target"></legend>
+                        </fieldset>
+                        <div class="layui-form">
+                            <table class="layui-hide" id="changePlace" lay-filter="changePlace"></table>
+                            <script type="text/html" id="selectOP">
+                                <a class="layui-btn layui-btn-xs" lay-event="yes">选择</a>
+                            </script>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -452,8 +587,9 @@
             </fieldset>
             <div class="layui-tab layui-tab-card" style="height:100% ">
                 <ul class="layui-tab-title">
-                    <li id="detailPlace">场地信息</li>
+                    <li id="detailPlace">所有场地信息</li>
                     <li id="updatePlace" style="display:none;">场地信息修改</li>
+                    <li id="appointmentPlace">场地安排信息</li>
                 </ul>
                 <div class="layui-tab-content" style="height: 100px;">
                     <%--场地详情--%>
@@ -462,18 +598,17 @@
                     </div>
                     <%--场地信息修改表单--%>
                     <div class="layui-tab-item" id="updateAppointmentItem">
-                        <form class="layui-form layui-form-pane" id="messageForm5" action="/admin/OAddOrUpdatePlace"  method="POST"  target="messageFrame">
+                        <form class="layui-form layui-form-pane" id="messageForm5" action="/admin/OUpdatePlace"  method="POST"  target="messageFrame">
                             <div class="layui-form-item">
                                 <label class="layui-form-label">id</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="id" required  lay-verify="required"  autocomplete="off" class="layui-input" value="${sessionScope.place.getId()}">
+                                    <input type="text" name="id" id="placeID" required  lay-verify="required"  autocomplete="off" class="layui-input" value="${sessionScope.place.getId()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">场地类型</label>
                                 <div class="layui-input-block">
-                                    <select name="type" lay-filter="aihao">
-                                        <option value="${sessionScope.place.getType()}">${sessionScope.place.getType()}</option>
+                                    <select name="type" id="place_type" lay-filter="aihao">
                                         <option value="A">A</option>
                                         <option value="B">B</option>
                                         <option value="C">C</option>
@@ -484,43 +619,43 @@
                             <div class="layui-form-item">
                                 <label class="layui-form-label">场地名称</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="name" required  lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.place.getName()}">
+                                    <input type="text" name="name" id="placeName" required  lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.place.getName()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">场地地址</label>
                                 <div class="layui-input-block">
-                                    <input type="text" class="layui-input" name="address" value="${sessionScope.place.getAddress()}">
+                                    <input type="text" class="layui-input" id="placeAddress" name="address" value="${sessionScope.place.getAddress()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">场地容量</label>
                                 <div class="layui-input-block">
-                                    <input type="text" class="layui-input" name="capacity" value="${sessionScope.place.getCapacity()}">
+                                    <input type="text" class="layui-input" id="capacity" name="capacity" value="${sessionScope.place.getCapacity()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">场地简介</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="introduction" required  lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.place.getIntroduction()}">
+                                    <input type="text" name="introduction" id="introduction" required  lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.place.getIntroduction()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">场地设备</label>
                                 <div class="layui-input-block">
-                                    <input type="text" class="layui-input" name="device" value="${sessionScope.place.getDevice()}"/>
+                                    <input type="text" class="layui-input" id="device" name="device" value="${sessionScope.place.getDevice()}"/>
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">使用须知</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="instruction" required lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.place.getInstruction()}">
+                                    <input type="text" name="instruction" id="instruction" required lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.place.getInstruction()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">使用费用</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="cost" required lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.place.getCost()}">
+                                    <input type="text" name="cost" id="placeCost" required lay-verify="required" autocomplete="off" class="layui-input" value="${sessionScope.place.getCost()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
@@ -553,20 +688,18 @@
                             <div class="layui-form-item">
                                 <label class="layui-form-label">场地类型</label>
                                 <div class="layui-input-block">
-                                    <input type="radio" name="type" value="A" title="A(距离近，场地小)" checked>
-                                    <input type="radio" name="type" value="B" title="B(距离近，场地大)">
-                                    <input type="radio" name="type" value="C" title="C(距离远，场地小)">
-                                    <input type="radio" name="type" value="D" title="D(距离远，场地大)">
-                                    <input type="radio" name="type" value="E" title="E">
-                                    <input type="radio" name="type" value="F" title="F">
+                                    <input type="radio" name="type" value="A" title="A(短时，场地大)" checked>
+                                    <input type="radio" name="type" value="B" title="B(短时，场地小)">
+                                    <input type="radio" name="type" value="C" title="C(中时，场地大)">
+                                    <input type="radio" name="type" value="D" title="D(中时，场地小)">
+                                    <input type="radio" name="type" value="E" title="E(长时，场地大)">
+                                    <input type="radio" name="type" value="F" title="F(长时，场地小)">
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <div class="layui-inline">
-                                    <label class="layui-form-label">地址</label>
-                                    <div class="layui-input-block">
-                                        <input type="text" class="layui-input" id="address" name="address" placeholder="请输入场地地址" autocomplete="off"/>
-                                    </div>
+                                <label class="layui-form-label">地址</label>
+                                <div class="layui-input-block">
+                                    <input type="text" class="layui-input" id="address" name="address" placeholder="请输入场地地址" autocomplete="off"/>
                                 </div>
                             </div>
                             <div class="layui-form-item">
@@ -589,9 +722,11 @@
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <label class="layui-form-label">场地容量</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="capacity" required  lay-verify="required|number" placeholder="请输入场地容量" autocomplete="off" class="layui-input">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">场地容量</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="capacity" required  lay-verify="required|number" placeholder="请输入场地容量" autocomplete="off" class="layui-input">
+                                    </div>
                                 </div>
                             </div>
                             <div class="layui-form-item">
@@ -603,16 +738,21 @@
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <label class="layui-form-label">所属组织</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="companyId" required lay-verify="required|number" placeholder="请输入所属组织ID"  class="layui-input">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">所属组织</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="companyId" required lay-verify="required|number" placeholder="请输入所属组织ID"  class="layui-input">
+                                    </div>
                                 </div>
                             </div>
-                            <div id ="updiv" class="layui-form-item">
-                                <button type="button" class="layui-btn layui-btn-normal" id="placeImage">选择文件</button>
-                                <button type="button" class="layui-btn" id="uploadButton" onclick="upload2();">开始上传</button>
-                                <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset2">重置</button><br>
-                                <iframe name="frame1" frameborder="0" height="40"></iframe>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">场地图片</label>
+                                <div class="layui-input-block">
+                                    <button type="button" class="layui-btn layui-btn-normal" id="placeImage">选择文件</button>
+                                    <button type="button" class="layui-btn" id="uploadButton" onclick="upload2();">开始上传</button>
+                                    <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset2">重置</button><br>
+                                    <iframe name="frame1" frameborder="0" height="40"></iframe>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -759,21 +899,22 @@
     });
 
 
-    //上传人脸信息
+    //上传文件
     layui.use('upload', function(){
         var $ = layui.jquery
             ,upload = layui.upload;
-        //拖拽上传
+        //人脸信息上传
         upload.render({
             elem: '#test8'
             ,accept: 'file'
             ,auto: false
         });
-        //拖拽上传
+        //场地信息上传
         upload.render({
             elem: '#placeImage'
             ,accept: 'file'
             ,auto: false
+            ,multiple: true
         });
     });
     //初始化显示
@@ -788,6 +929,8 @@
     var tempId;
     var tempName;
     var tempJobnum;
+    var appointmentId,start,end,last;
+    var orderertype;
 
     function upMessage() {
         document.getElementById("messageForm").reset();
@@ -822,6 +965,8 @@
         document.getElementById("infoPage").style.display="block";
         document.getElementById("facePage").style.display="none";
         document.getElementById("safePage").style.display="none";
+        document.getElementById("meetingPage").style.display="none";
+        document.getElementById("companyPage").style.display="none";
         document.getElementById("employeeInfoPage").style.display="none";
         document.getElementById("meetingroomInfoPage").style.display="none";
         document.getElementById("rentInfoPage").style.display="none";
@@ -829,6 +974,8 @@
     function mySafePage(){
         document.getElementById("facePage").style.display="none";
         document.getElementById("safePage").style.display="block";
+        document.getElementById("companyPage").style.display="none";
+        document.getElementById("meetingPage").style.display="none";
         document.getElementById("employeeInfoPage").style.display="none";
         document.getElementById("infoPage").style.display="none";
         document.getElementById("meetingroomInfoPage").style.display="none";
@@ -837,6 +984,28 @@
     function  myFacePage(){
         document.getElementById("infoPage").style.display="none";
         document.getElementById("safePage").style.display="none";
+        document.getElementById("companyPage").style.display="none";
+        document.getElementById("meetingPage").style.display="none";
+        document.getElementById("employeeInfoPage").style.display="none";
+        document.getElementById("facePage").style.display="block";
+        document.getElementById("meetingroomInfoPage").style.display="none";
+        document.getElementById("rentInfoPage").style.display="none";
+    }
+    function  myCompanyPage(){
+        document.getElementById("infoPage").style.display="none";
+        document.getElementById("safePage").style.display="none";
+        document.getElementById("companyPage").style.display="block";
+        document.getElementById("meetingPage").style.display="none";
+        document.getElementById("employeeInfoPage").style.display="none";
+        document.getElementById("facePage").style.display="block";
+        document.getElementById("meetingroomInfoPage").style.display="none";
+        document.getElementById("rentInfoPage").style.display="none";
+    }
+    function  myMeetingPage(){
+        document.getElementById("infoPage").style.display="none";
+        document.getElementById("safePage").style.display="none";
+        document.getElementById("companyPage").style.display="none";
+        document.getElementById("meetingPage").style.display="block";
         document.getElementById("employeeInfoPage").style.display="none";
         document.getElementById("facePage").style.display="block";
         document.getElementById("meetingroomInfoPage").style.display="none";
@@ -846,6 +1015,8 @@
         document.getElementById("infoPage").style.display="none";
         document.getElementById("safePage").style.display="none";
         document.getElementById("facePage").style.display="none";
+        document.getElementById("meetingPage").style.display="none";
+        document.getElementById("companyPage").style.display="none";
         document.getElementById("employeeInfoPage").style.display="block";
         document.getElementById("employeeInformationListSpan").style.display="block";
         document.getElementById("meetingroomInfoPage").style.display="none";
@@ -855,6 +1026,8 @@
         document.getElementById("infoPage").style.display="none";
         document.getElementById("safePage").style.display="none";
         document.getElementById("facePage").style.display="none";
+        document.getElementById("meetingPage").style.display="none";
+        document.getElementById("companyPage").style.display="none";
         document.getElementById("employeeInfoPage").style.display="none";
         document.getElementById("employeeInformationListSpan").style.display="none";
         document.getElementById("meetingroomInfoPage").style.display="block";
@@ -864,6 +1037,8 @@
         document.getElementById("infoPage").style.display="none";
         document.getElementById("safePage").style.display="none";
         document.getElementById("facePage").style.display="none";
+        document.getElementById("meetingPage").style.display="none";
+        document.getElementById("companyPage").style.display="none";
         document.getElementById("employeeInfoPage").style.display="none";
         document.getElementById("employeeInformationListSpan").style.display="none";
         document.getElementById("meetingroomInfoPage").style.display="none";
@@ -924,13 +1099,155 @@
     }
 
     function setStaffSuccess() {
+        var responseXML = xmlHttp.responseXML;
+        var id = responseXML.getElementsByTagName("id")  [0].firstChild.nodeValue;
+        var name = responseXML.getElementsByTagName("name")  [0].firstChild.nodeValue;
+        var sex = responseXML.getElementsByTagName("sex")  [0].firstChild.nodeValue;
+        var companyId = responseXML.getElementsByTagName("companyId")  [0].firstChild.nodeValue;
+        var jobnum = responseXML.getElementsByTagName("jobnum")  [0].firstChild.nodeValue;
+        var department = responseXML.getElementsByTagName("department")  [0].firstChild.nodeValue;
+        var pswd = responseXML.getElementsByTagName("pswd")  [0].firstChild.nodeValue;
+        var id_num = responseXML.getElementsByTagName("id_num")  [0].firstChild.nodeValue;
+        var phone = responseXML.getElementsByTagName("phone")  [0].firstChild.nodeValue;
+        document.getElementById('jobnumChange').setAttribute("value",jobnum);
+        document.getElementById('name').setAttribute("value",name);
+        document.getElementById('sex').setAttribute("value",sex);
+        document.getElementById('companyId').setAttribute("value",companyId);
+        document.getElementById('department').setAttribute("value",department);
+        document.getElementById('pswd').setAttribute("value",pswd);
+        document.getElementById('id_num').setAttribute("value",id_num);
+        document.getElementById('phone').setAttribute("value",phone);
+        var select = document.getElementById('department');
+        for(var i=0; i<select.options.length; i++){
+            if(select.options[i].innerHTML == department){
+                select.options[i].selected = true;
+                break;
+            }
+        }
         document.getElementById("updateStaff").click();
     }
     function setAppointmentSuccess() {
+        var responseXML = xmlHttp.responseXML;
+        var id   = responseXML.getElementsByTagName("id")    [0].firstChild.nodeValue;
+        var orderer_id = responseXML.getElementsByTagName("orderer_id")  [0].firstChild.nodeValue;
+        var ordererType = responseXML.getElementsByTagName("ordererType")  [0].firstChild.nodeValue;
+        var startTime = responseXML.getElementsByTagName("startTime")  [0].firstChild.nodeValue;
+        var endTime = responseXML.getElementsByTagName("endTime")  [0].firstChild.nodeValue;
+        var place_id = responseXML.getElementsByTagName("place_id")  [0].firstChild.nodeValue;
+        var place_name = responseXML.getElementsByTagName("place_name")  [0].firstChild.nodeValue;
+        var companyId = responseXML.getElementsByTagName("companyId")  [0].firstChild.nodeValue;
+        var type = responseXML.getElementsByTagName("type")  [0].firstChild.nodeValue;
+        document.getElementById('appointmentId').setAttribute("value",id);
+        document.getElementById('orderer_id').setAttribute("value",orderer_id);
+        //document.getElementById('ordererType').setAttribute("value",ordererType);
+        document.getElementById('startTime').setAttribute("value",startTime);
+        document.getElementById('endTime').setAttribute("value",endTime);
+        document.getElementById('place_id').setAttribute("value",place_id);
+        document.getElementById('place_name').setAttribute("value",place_name);
+        document.getElementById('companyId').setAttribute("value",companyId);
+        document.getElementById('type').setAttribute("value",type);
+        var select = document.getElementById('ordererType');
+        for(var i=0; i<select.options.length; i++){
+            if(select.options[i].innerHTML == ordererType){
+                select.options[i].selected = true;
+                break;
+            }
+        }
+
         document.getElementById("updateAppointment").click();
     }
     function setPlaceSuccess() {
+        var responseXML = xmlHttp.responseXML;
+        var id   = responseXML.getElementsByTagName("id")    [0].firstChild.nodeValue;
+        var type = responseXML.getElementsByTagName("type")  [0].firstChild.nodeValue;
+        var name = responseXML.getElementsByTagName("name")  [0].firstChild.nodeValue;
+        var address = responseXML.getElementsByTagName("address")  [0].firstChild.nodeValue;
+        var capacity = responseXML.getElementsByTagName("capacity")  [0].firstChild.nodeValue;
+        var introduction = responseXML.getElementsByTagName("introduction")  [0].firstChild.nodeValue;
+        var device = responseXML.getElementsByTagName("device")  [0].firstChild.nodeValue;
+        var instruction = responseXML.getElementsByTagName("instruction")  [0].firstChild.nodeValue;
+        var cost = responseXML.getElementsByTagName("cost")  [0].firstChild.nodeValue;
+        document.getElementById('placeID').setAttribute("value",id);
+        document.getElementById('placeName').setAttribute("value",name);
+        document.getElementById('placeAddress').setAttribute("value",address);
+        document.getElementById('capacity').setAttribute("value",capacity);
+        document.getElementById('introduction').setAttribute("value",introduction);
+        document.getElementById('device').setAttribute("value",device);
+        document.getElementById('instruction').setAttribute("value",instruction);
+        document.getElementById('placeCost').setAttribute("value",cost);
+        var select = document.getElementById('place_type');
+        for(var i=0; i<select.options.length; i++){
+            if(select.options[i].innerHTML == type){
+                select.options[i].selected = true;
+                break;
+            }
+        }
+
         document.getElementById("updatePlace").click();
+    }
+    //获取会议人数
+    function retrunPeopleNum(){
+        var responseXML = xmlHttp.responseXML;
+        var num = responseXML.getElementsByTagName("num")    [0].firstChild.nodeValue;
+        changePlace(tempId,start,end,last,num);
+    }
+    function getPeopleNum(id) {
+        var url = "/admin/queryAttendeesList?id="+id;
+        createXMLHttpRequest();
+        xmlHttp.onreadystatechange = handleStateChange;
+        xmlHttp.open("GET", url, true); xmlHttp.send(null);
+    }
+    //点击调度处理
+    function changePlace(id,starttime,endtime,duration,capacity){
+        document.getElementById("changeAppointment").click();
+        document.getElementById("target").innerText='当前处理预约id:'+id+' 类型:'+orderertype;
+        //查询空闲场地
+        var canuseurl = "/place/staff/getRecommendList?companyId="+id+"&starttime="+starttime.substring(11,16)
+        +"&endtime="+endtime.substring(11,16)+"&duration="+duration+"&capacity="+capacity;
+        layui.use('table', function(){
+            var table = layui.table;
+            table.render({
+                elem: '#changePlace'
+                ,url:canuseurl
+                ,cols: [[
+                    {field:'id', width:80, title: 'id', sort: true,templet:'<div>{{d.recommends.id}}</div>'}
+                    ,{field:'type', width:100, title: '场地类型'}
+                    ,{field:'name', width:120, title: '场地名称'}
+                    ,{field:'address', width:120, title: '场地地址'}
+                    ,{field:'capacity', width:100, title: '场地容量'}
+                    ,{field:'introduction', width:120, title: '场地简介'}
+                    ,{field:'device', width:120, title: '场地设备'}
+                    ,{field:'instruction', width:130, title: '使用须知'}
+                    ,{field:'cost', width:100, title: '使用费用'}
+                    ,{fixed: 'right', title:'操作', toolbar: '#selectOP', width:100}
+                ]]
+                ,page: true
+                ,response: {
+                    statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
+                }
+                ,parseData: function(res){ //将原始数据解析成 table 组件所规定的数据
+                    return {
+                        "code": res.status, //解析接口状态
+                        "msg": res.msg, //解析提示文本
+                        "count": res.data.count, //解析数据长度
+                        "data": res.data.recommends //解析数据列表
+                    };
+                }
+            });
+
+            table.on('tool(changePlace)', function(obj){
+                var data = obj.data;
+                var info = JSON.parse(JSON.stringify(data));
+                tempId = info.id;
+                var tempName = info.name;
+                //console.log(obj)
+                if(obj.event === 'yes'){
+                    layer.confirm('确认选择此场地么', function(index){
+                        confirmPlace(id,tempId,tempName);
+                    });
+                }
+            });
+        });
     }
     // 初始化显示当前部门信息
     function queryDepartmentList(){
@@ -952,6 +1269,12 @@
         xmlHttp.onreadystatechange = handleStateChange;
         xmlHttp.open("GET", url, true); xmlHttp.send(null);
     }
+    function deleteVisitorAppointment(id) {
+        var url = "/admin/ODeleteVisitorAppointment?id="+id;
+        createXMLHttpRequest();
+        xmlHttp.onreadystatechange = handleStateChange;
+        xmlHttp.open("GET", url, true); xmlHttp.send(null);
+    }
     function deletePlace(id) {
         var url = "/admin/ODeletePlace?id="+id;
         createXMLHttpRequest();
@@ -969,6 +1292,9 @@
         createXMLHttpRequest();
         xmlHttp.onreadystatechange = handleStateChange;
         xmlHttp.open("GET", url, true); xmlHttp.send(null);
+    }
+    function refreshVisitorAppointmentList(){
+        document.getElementById("reviewOrderListSp").click();
     }
     function disagreeApply(id) {
         var url = "/admin/ODisagreeApply?id="+id;
@@ -1106,13 +1432,14 @@
                     {field:'id', width:80, title: 'id', sort: true}
                     ,{field:'orderer_id', width:120, title: '预约人id'}
                     ,{field:'ordererType', width:120, title: '预约人类型'}
-                    ,{field:'startTime', width:250, title: '开始时间'}
-                    ,{field:'endTime', width:250, title: '结束时间'}
+                    ,{field:'stime', width:250, title: '开始时间'}
+                    ,{field:'etime', width:250, title: '结束时间'}
+                    ,{field:'duration', width:80, title: '时长'}
                     ,{field:'place_id', width:120, title: '预约场地id'}
                     ,{field:'place_name', width:120, title: '预约场地名'}
                     ,{field:'companyId', width:130, title: '预约者所属公司'}
                     ,{field:'type', width:120, title: '预约场地类别'}
-                    ,{fixed: 'right', title:'操作', toolbar: '#barOP', width:120}
+                    ,{fixed: 'right', title:'操作', toolbar: '#appointmentOP', width:200}
                 ]]
                 ,page: true
                 ,response: {
@@ -1131,6 +1458,10 @@
                 var data = obj.data;
                 var info = JSON.parse(JSON.stringify(data));
                 tempId = info.id;
+                start = info.stime;
+                end = info.etime;
+                last = info.duration;
+                orderertype = info.ordererType;
                 //console.log(obj)
                 if(obj.event === 'delete'){
                     //layer.alert('编辑行：<br>'+ JSON.stringify(data));
@@ -1139,14 +1470,15 @@
                         obj.del();
                         layer.close(index);
                     });
-                }else if(obj.event === 'change'){
+                }else if(obj.event === 'update'){
                     setAppointmentInSession(tempId);
-                    //document.getElementById("updateStaff").click();
+                }else if(obj.event === 'change'){
+                    getPeopleNum(tempId);
                 }
             });
         });
         //游客预约管理
-        var visitorurl='/admin/OFindVisitorAppointments?time='+time2+"&state="+'申请中';
+        var visitorurl='/admin/OFindVisitorAppointments?time='+time2;
         layui.use('table', function(){
             var table = layui.table;
             table.render({
@@ -1154,16 +1486,18 @@
                 ,url:visitorurl
                 ,cols: [[
                     {field:'id', width:80, title: 'id', sort: true}
-                    ,{field:'orderer_id', width:120, title: '预约人id'}
+                    ,{field:'appointment_id', width:120, title: '预约id'}
+                    ,{field:'orderer_id', width:120, title: '预约者id'}
                     ,{field:'ordererType', width:120, title: '预约人类型'}
-                    ,{field:'startTime', width:250, title: '开始时间'}
-                    ,{field:'endTime', width:250, title: '结束时间'}
+                    ,{field:'startTime', width:200, title: '开始时间'}
+                    ,{field:'endTime', width:200, title: '结束时间'}
+                    ,{field:'duration', width:80, title: '时长'}
                     ,{field:'place_id', width:120, title: '预约场地id'}
                     ,{field:'place_name', width:120, title: '预约场地名'}
                     ,{field:'companyId', width:130, title: '预约者所属公司'}
                     ,{field:'type', width:120, title: '预约场地类别'}
                     ,{field:'state', width:120, title: '审核状态'}
-                    ,{fixed: 'right', title:'操作', toolbar: '#barOP', width:120}
+                    ,{fixed: 'right', title:'操作', toolbar: '#appointmentOP', width:200}
                 ]]
                 ,page: true
             });
@@ -1171,17 +1505,23 @@
                 var data = obj.data;
                 var info = JSON.parse(JSON.stringify(data));
                 tempId = info.id;
+                start = info.startTime;
+                end = info.endTime;
+                last = info.duration;
+                appointmentId = info.appointment_id;
+                orderertype = info.ordererType;
                 //console.log(obj)
                 if(obj.event === 'delete'){
                     //layer.alert('编辑行：<br>'+ JSON.stringify(data));
                     layer.confirm('真的删除此游客预约么', function(index){
-                        deleteAppointment(tempId);
+                        deleteVisitorAppointment(tempId);
                         obj.del();
                         layer.close(index);
                     });
+                }else if(obj.event === 'update'){
+                    setAppointmentInSession(appointmentId);
                 }else if(obj.event === 'change'){
-                    setAppointmentInSession(tempId);
-                    //document.getElementById("updateStaff").click();
+                    getPeopleNum(appointmentId);
                 }
             });
         });
@@ -1209,7 +1549,6 @@
                     ,{field:'cost', width:100, title: '使用费用'}
                     ,{fixed: 'right', title:'操作', toolbar: '#barOP', width:120}
                 ]]
-                ,page: true
                 ,response: {
                     statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
                 }
@@ -1221,6 +1560,7 @@
                         "data": res.data //解析数据列表
                     };
                 }
+                ,page: true
             });
 
             table.on('tool(place)', function(obj){
@@ -1246,7 +1586,7 @@
     function auditingAppointment(){
         document.getElementById("appointmentContent").click();
         var currDate = document.getElementById("judgeTime").value;
-        var HEADurl='/admin/OFindVisitorAppointments?time='+currDate+'&state='+'审核中';
+        var HEADurl='/admin/OFindVisitorAppointments?time='+currDate+'&state='+'申请中';
         layui.use('table', function(){
             var table = layui.table;
             table.render({
@@ -1273,7 +1613,6 @@
                 var info = JSON.parse(JSON.stringify(data));
                 tempId = info.id;
                 if(obj.event === 'agree'){
-                    //layer.alert('编辑行：<br>'+ JSON.stringify(data));
                     agreeApply(tempId);
                 }else if(obj.event === 'disagree'){
                     disagreeApply(tempId);
@@ -1291,11 +1630,10 @@
                 ,url:HEADurl
                 ,cols: [[
                     {field:'id', width:80, title: 'id', sort: true}
-                    ,{field:'place_id', width:120, title: '场地id'}
-                    ,{field:'evaluator_type', width:120, title: '评价者类别'}
+                    ,{field:'placeId', width:100, title: '场地id'}
+                    ,{field:'visitor_id', width:100, title: '游客ID'}
                     ,{field:'time', width:200, title: '评价时间'}
                     ,{field:'content', width:300, title: '评价内容'}
-                    ,{fixed: 'right', title:'操作', toolbar: '#deleteOP', width:80}
                 ]]
                 ,page: true
                 ,response: {
@@ -1310,23 +1648,10 @@
                     };
                 }
             });
-
-            table.on('tool(visitorRemark)', function(obj){
-                var data = obj.data;
-                //console.log(obj)
-                if(obj.event === 'delete'){
-                    //layer.alert('编辑行：<br>'+ JSON.stringify(data));
-                    var info = JSON.parse(JSON.stringify(data));
-                    tempId = info.id;
-                    layer.confirm('真的删除此评价么', function(index){
-                        deleteEvaluation(tempId);
-                        obj.del();
-                        layer.close(index);
-                    });
-                }
-            });
         });
     }
+
+
     //将职员信息放入seesion
     function setStaffInSession(jobnum) {
         var url = "/admin/setStaff?jobnum="+jobnum;
@@ -1336,7 +1661,14 @@
     }
     //将预约信息放入seesion
     function setAppointmentInSession(id) {
-        var url = "/admin/setAppointment?id="+id;
+        var url = "/admin/setAppointment?id="+id+"&rd="+new Date().getTime();
+        createXMLHttpRequest();
+        xmlHttp.onreadystatechange = handleStateChange;
+        xmlHttp.open("GET", url, true); xmlHttp.send(null);
+    }
+    //手动调度确认选择
+    function confirmPlace(appointmentId,placeId,placeName) {
+        var url = "/admin/OAddOrUpdateAppointment?id="+appointmentId+"&place_id="+placeId+"&place_name="+placeName;
         createXMLHttpRequest();
         xmlHttp.onreadystatechange = handleStateChange;
         xmlHttp.open("GET", url, true); xmlHttp.send(null);

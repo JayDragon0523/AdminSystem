@@ -73,7 +73,7 @@
         <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
             <legend align="center">基本资料</legend>
         </fieldset>
-        <form class="layui-form" action="/admin/SUpdateSelf" method="post" target="teacherIn  foFrame">
+        <form class="layui-form" action="/admin/SUpdateSelf" method="post" target="teacherInfoFrame">
 
 
             <div class="layui-form-item"align="center" >
@@ -165,7 +165,7 @@
                     </div>
                     <%--添加组织--%>
                     <div class="layui-tab-item">
-                        <form class="layui-form layui-form-pane" id="messageForm3" action="/admin/SAddCompany"  method="POST"  target="messageFrame">
+                        <form class="layui-form layui-form-pane" id="messageForm3" action="/admin/SAddCompany"  method="POST"  target="messageFrame" enctype="multipart/form-data">
                             <div class="layui-form-item">
                                 <label class="layui-form-label">名称</label>
                                 <div class="layui-input-block">
@@ -191,7 +191,7 @@
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <label class="layui-form-label">组织代表姓名</label>
+                                <label class="layui-form-label">代表人姓名</label>
                                 <div class="layui-input-block">
                                     <input type="text" name="head_name" required  lay-verify="required" placeholder="请输入组织代表姓名" autocomplete="off" class="layui-input">
                                 </div>
@@ -203,8 +203,10 @@
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <button type="submit" id="messageFormSubmit3" class="layui-btn" onclick="setTimeout(upMessage,'1000');">确认添加</button>
-                                <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset3">重置</button>
+                                <div class="layui-inline">
+                                    <button class="layui-btn" type="submit" lay-submit="" lay-filter="demo1">立即提交</button>
+                                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                                </div>
                             </div>
                         </form>
                         <script type="text/html" id="barOP">
@@ -327,14 +329,6 @@
                                 <label class="layui-form-label">联系方式</label>
                                 <div class="layui-input-block">
                                     <input type="text" name="phone" required  lay-verify="required" placeholder="请输入联系方式" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <div class="layui-inline">
-                                    <label class="layui-form-label">人脸信息</label>
-                                    <div class="layui-input-inline">
-                                        <input type="text" class="layui-input" name="face_info" placeholder="请输入人脸图片地址"/>
-                                    </div>
                                 </div>
                             </div>
                             <div class="layui-form-item">
@@ -477,12 +471,6 @@
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <label class="layui-form-label">人脸信息</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="face_info" required  lay-verify="required" placeholder="请输入人脸图片地址" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
                                 <button type="submit" id="messageFormSubmit4" class="layui-btn" onclick="setTimeout(upMessage,'1000');">确认添加</button>
                                 <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset4">重置</button>
                             </div>
@@ -538,13 +526,6 @@
                                 <div class="layui-input-block">
                                     <input type="text" name="credit_card" required  lay-verify="required" placeholder="请输入信用卡账号" autocomplete="off" class="layui-input"
                                            value="${sessionScope.visitor.getCredit_card()}">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">人脸信息</label>
-                                <div class="layui-input-block">
-                                    <input type="text" name="face_info" required  lay-verify="required" placeholder="请输入人脸图片地址" autocomplete="off" class="layui-input"
-                                           value="${sessionScope.visitor.getFace_info()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
@@ -622,6 +603,11 @@
             ,accept: 'file'
             ,auto: false
         });
+        upload.render({
+            elem: '#placeImage'
+            ,accept: 'file'
+            ,auto: false
+        });
     });
     //日期时间选择器：课程通知
     var layer;
@@ -632,7 +618,6 @@
 
 
     var xmlHttp;
-
     var tempId;
 
     function upMessage() {
@@ -654,6 +639,10 @@
     function upload() {
         $("#formId").submit();
         $("#formId")[0] .reset();
+    }
+    function upload2() {
+        $("#messageForm3").submit();
+        $("#messageForm3")[0] .reset();
     }
     function hideOthers(obj) {
         var id = obj.id+'an';
@@ -819,11 +808,11 @@
                 ,url: DEPARTurl
                 ,cols: [[
                     {field:'id', width:100, title: 'id', sort: true}
-                    ,{field:'name', width:120, title: '公司名'}
-                    ,{field:'address', width:80, title: '地址'}
+                    ,{field:'name', width:200, title: '公司名'}
+                    ,{field:'address', width:200, title: '地址'}
                     ,{field:'register_num', width:120, title: '公司注册号'}
-                    ,{field:'introduction', width:120, title: '简介'}
-                    ,{field:'head_name', width:120,title: '代表人姓名'}
+                    ,{field:'introduction', width:200, title: '简介'}
+                    ,{field:'head_name', width:100,title: '代表人姓名'}
                     ,{field:'head_phone', width:120, title: '联系方式'}
                     ,{fixed: 'right', title:'操作', toolbar: '#barOP', width:120}
                 ]]
@@ -869,11 +858,11 @@
                 ,url: DEPARTurl
                 ,cols: [[
                     {field:'id', width:100, title: 'id', sort: true}
-                    ,{field:'name', width:120, title: '公司名'}
-                    ,{field:'address', width:80, title: '地址'}
+                    ,{field:'name', width:200, title: '公司名'}
+                    ,{field:'address', width:200, title: '地址'}
                     ,{field:'register_num', width:120, title: '公司注册号'}
                     ,{field:'introduction', width:120, title: '简介'}
-                    ,{field:'head_name', width:120,title: '代表人姓名'}
+                    ,{field:'head_name', width:100,title: '代表人姓名'}
                     ,{field:'head_phone', width:120, title: '联系方式'}
                     ,{fixed: 'right', title:'操作', toolbar: '#judgeOP', width:120}
                 ]]
@@ -924,11 +913,11 @@
                 ,cols: [[
                     {field:'id', width:100, title: 'id', sort: true}
                     ,{field:'identity', width:120, title: '身份'}
-                    ,{field:'id_num', width:80, title: '身份证号'}
+                    ,{field:'id_num', width:200, title: '身份证号'}
                     ,{field:'account', width:120, title: '账号'}
                     ,{field:'pswd', width:120, title: '密码'}
-                    ,{field:'phone', width:120,title: '联系方式'}
-                    ,{field:'face_info', width:120, title: '人脸信息'}
+                    ,{field:'phone', width:150,title: '联系方式'}
+                    ,{field:'face_info', width:200, title: '人脸信息'}
                 ]]
                 ,response: {
                     statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
@@ -953,8 +942,8 @@
                 ,url: OAdminurl
                 ,cols: [[
                     {field:'id', width:100, title: 'id', sort: true}
-                    ,{field:'identity', width:120, title: '身份'}
-                    ,{field:'id_num', width:80, title: '身份证号'}
+                    ,{field:'identity', width:100, title: '身份'}
+                    ,{field:'id_num', width:200, title: '身份证号'}
                     ,{field:'account', width:120, title: '账号'}
                     ,{field:'pswd', width:120, title: '密码'}
                     ,{field:'phone', width:120,title: '联系方式'}
@@ -1012,12 +1001,12 @@
                     {field:'id', width:100, title: 'id', sort: true}
                     ,{field:'name', width:120, title: '名字'}
                     ,{field:'sex', width:120, title: '性别'}
-                    ,{field:'id_num', width:80, title: '身份证号'}
+                    ,{field:'id_num', width:200, title: '身份证号'}
                     ,{field:'account', width:120, title: '账号'}
                     ,{field:'pswd', width:120, title: '密码'}
                     ,{field:'phone', width:120,title: '联系方式'}
                     ,{field:'credit_card', width:120,title: '信用卡卡号'}
-                    ,{field:'face_info', width:120, title: '人脸信息'}
+                    ,{field:'identified', width:120, title: '人脸是否验证'}
                     ,{fixed: 'right', title:'操作', toolbar: '#barOP', width:120}
                 ]]
                 ,response: {

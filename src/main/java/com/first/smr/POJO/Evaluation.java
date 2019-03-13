@@ -1,5 +1,10 @@
 package com.first.smr.POJO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -7,26 +12,34 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name="evaluation")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Evaluation implements Serializable {
     private static final Long serialVersionUID = 7284767790000015169L;
-    Evaluation(){}
+    public  Evaluation(){}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
-    private BigInteger place_id;
-    private BigInteger evaluator_id;
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH},optional = false)
-    @JoinColumn(name = "place_id",insertable=false, updatable=false)
-    private Company place;
-    private String evaluator_type;
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH},optional = false)
-    @JoinColumn(name = "evaluator_id",insertable=false, updatable=false)
-    private Visitor visitor;
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH},optional = false)
-    @JoinColumn(name = "evaluator_id",insertable=false, updatable=false)
-    private Staff staff;
+    @JsonIgnore
+    @Column(name = "place_id",nullable = false)
+    private BigInteger placeId;
     private Timestamp time;
     private String content;
+    @JsonIgnore
+    private BigInteger visitor_id;
+    @JsonIgnore
+    private BigInteger staff_id;
+
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH},optional = false)
+    @JoinColumn(name = "visitor_id",insertable=false, updatable=false)
+    @NotFound(action= NotFoundAction.IGNORE)
+    private Visitor visitor;
+
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH},optional = false)
+    @JoinColumn(name = "staff_id",insertable=false, updatable=false)
+    @NotFound(action=NotFoundAction.IGNORE)
+
+    private Staff staff;
 
     public BigInteger getId() {
         return id;
@@ -36,36 +49,12 @@ public class Evaluation implements Serializable {
         this.id = id;
     }
 
-    public BigInteger getPlace_id() {
-        return place_id;
+    public BigInteger getPlaceId() {
+        return placeId;
     }
 
-    public void setPlace_id(BigInteger place_id) {
-        this.place_id = place_id;
-    }
-
-    public BigInteger getEvaluator_id() {
-        return evaluator_id;
-    }
-
-    public void setEvaluator_id(BigInteger evaluator_id) {
-        this.evaluator_id = evaluator_id;
-    }
-
-    public Company getPlace() {
-        return place;
-    }
-
-    public void setPlace(Company place) {
-        this.place = place;
-    }
-
-    public String getEvaluator_type() {
-        return evaluator_type;
-    }
-
-    public void setEvaluator_type(String evaluator_type) {
-        this.evaluator_type = evaluator_type;
+    public void setPlaceId(BigInteger placeId) {
+        this.placeId = placeId;
     }
 
     public Visitor getVisitor() {
@@ -98,5 +87,21 @@ public class Evaluation implements Serializable {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public BigInteger getVisitor_id() {
+        return visitor_id;
+    }
+
+    public void setVisitor_id(BigInteger visitor_id) {
+        this.visitor_id = visitor_id;
+    }
+
+    public BigInteger getStaff_id() {
+        return staff_id;
+    }
+
+    public void setStaff_id(BigInteger staff_id) {
+        this.staff_id = staff_id;
     }
 }

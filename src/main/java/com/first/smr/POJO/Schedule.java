@@ -1,7 +1,7 @@
 package com.first.smr.POJO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -14,19 +14,34 @@ public class Schedule implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
+    @Column(name = "company_id",nullable = false)
+    private BigInteger companyId;
     @Column(name="place_id",nullable = false)
     private BigInteger placeId;
     private String schedule;
     private String state;
     @Column(name="is_reserve",nullable = false)
     private boolean isReserve;
+    @Column(name="day_of_week",nullable = false)
+    @JsonIgnore
+    private String dayOfWeek;
 
     public Schedule(){}
-    public Schedule(BigInteger placeId, String schedule, String state, boolean isReserve) {
+    public Schedule(BigInteger companyId,BigInteger placeId, String schedule, String state, boolean isReserve,String dayOfWeek) {
+        this.companyId=companyId;
         this.placeId = placeId;
         this.schedule = schedule;
         this.state = state;
         this.isReserve = isReserve;
+        this.dayOfWeek =dayOfWeek;
+    }
+
+
+    public BigInteger getCompanyId() {
+        return companyId;
+    }
+    public void setCompanyId(BigInteger companyId) {
+        this.companyId = companyId;
     }
 
     public BigInteger getPlaceId() {
@@ -62,5 +77,12 @@ public class Schedule implements Serializable {
     }
     public void setReserve(boolean reserve) {
         isReserve = reserve;
+    }
+
+    public String isDayOfWeek() {
+        return dayOfWeek;
+    }
+    public void setDayOfWeek(String dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
     }
 }

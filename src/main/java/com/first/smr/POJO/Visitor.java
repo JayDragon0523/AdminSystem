@@ -1,7 +1,7 @@
 package com.first.smr.POJO;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -9,6 +9,7 @@ import java.math.BigInteger;
 @Entity
 @Table(name="visitor")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(value = { "face_info","pswd","credit_card","id_num","phone" })
 public class Visitor implements Serializable {
 
     private static final Long serialVersionUID = 2073182677862878262L;
@@ -62,12 +63,18 @@ public class Visitor implements Serializable {
         this.id_num = id_num;
     }
 
-    public String getAccount() {
-        return account;
+    public boolean isIdentified() {
+        return isIdentified;
+    }
+    public void setIdentified(boolean identified) {
+        isIdentified = identified;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
+    public String getProtrait() {
+        return protrait;
+    }
+    public void setProtrait(String protrait) {
+        this.protrait = protrait;
     }
 
     @Id
@@ -75,12 +82,14 @@ public class Visitor implements Serializable {
     private BigInteger id;
     private String name;
     private String sex;
-    private String account;
     private String pswd;
     private String phone;
     private String id_num;
     private String credit_card;
     private byte[] face_info;
+    @Transient
+    private boolean isIdentified;
+    private String protrait;
     public byte[] getFace_info() {
         return face_info;
     }

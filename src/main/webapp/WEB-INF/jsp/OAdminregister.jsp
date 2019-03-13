@@ -39,6 +39,20 @@
                 <div class="part1">
                     <form action="/admin/SAddCompany" method="POST" id="formId">
                         <div class="item col-xs-12">
+                            <span class="intelligent-label f-fl"><b class="ftx04">*</b>类别：</span>
+                            <div class="f-fl item-ifo">
+                                <div class="layui-input-block">
+                                    <select name="identity" lay-filter="aihao">
+                                        <option value="组织管理员" selected="">组织管理员</option>
+                                        <option value="发布管理员">发布管理员</option>
+                                    </select>
+                                </div>
+                                <label class="icon-sucessfill blank hide"></label>
+                                <label class="focus"><span>如果您是发布者请选择发布管理员</span></label>
+                                <label class="focus valid"></label>
+                            </div>
+                        </div>
+                        <div class="item col-xs-12">
                             <span class="intelligent-label f-fl"><b class="ftx04">*</b>用户名：</span>
                             <div class="f-fl item-ifo">
                                 <input type="text" maxlength="20" class="txt03 f-r3 required" tabindex="1" data-valid="isNonEmpty||between:3-20||isUname" data-error="用户名不能为空||用户名长度3-20位||只能输入中文、字母、数字、下划线，且以中文或字母开头" id="account" />                            <span class="ie8 icon-close close hide"></span>
@@ -181,6 +195,7 @@
     var pswd;
     var companyId;
     var phone;
+    var identity;
     //创建XMLHttpRequest对象
     function createXMLHttpRequest(){
         if(window.ActiveXObject){
@@ -201,10 +216,10 @@
             }
         }
     }
-    // 保存公司信息
+    // 保存管理员信息
     function submitOAdminApply(){
         var url = "/admin/OAdminApply?account="+account+"&pswd="+pswd+"&id_num="+id_num+"&companyId="
-            +companyId+"&phone="+phone;
+            +companyId+"&phone="+phone+"&identity="+identity;
         createXMLHttpRequest();
         xmlHttp.onreadystatechange = handleStateChange;
         xmlHttp.open("GET", url, true); xmlHttp.send(null);
@@ -216,6 +231,7 @@
             $(".part1").hide();
             $(".part2").show();
             $(".step li").eq(1).addClass("on");
+            identity = document.getElementById("identity").value;
             phone = document.getElementById("phone").value;
             document.getElementById("phoneValue").innerText=phone;
             account = document.getElementById("account").value;

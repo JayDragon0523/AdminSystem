@@ -24,6 +24,18 @@ public class Admin implements Serializable {
     @JoinColumn(name = "company_id", insertable=false, updatable=false)
     private Company company;
 
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH},optional = false,fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", insertable=false, updatable=false)
+    private ScheduleConfig scheduleConfig;
+
+    public ScheduleConfig getScheduleConfig() {
+        return scheduleConfig;
+    }
+
+    public void setScheduleConfig(ScheduleConfig scheduleConfig) {
+        this.scheduleConfig = scheduleConfig;
+    }
+
     public BigInteger getId() {
         return id;
     }

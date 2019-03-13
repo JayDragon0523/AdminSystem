@@ -8,12 +8,15 @@ import com.first.smr.DAO.ScheduleDAO;
 import com.first.smr.POJO.Appointment;
 import com.first.smr.POJO.Attendees;
 import com.first.smr.POJO.ConferenceMess;
+import com.first.smr.POJO.ScheduleConfig;
 import com.first.smr.Util.SMRUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,26 +31,32 @@ public class AppointmentService {
     ScheduleDAO scheduleDAO;
     @Resource
     AttendeesDAO attendeesDAO;
+    @Resource
+    SMRUtil smrUtil;
 
     //预约会议
     @Transactional
-    public CommonResult appointment(String identity, Appointment a)
+    public CommonResult appointment(String identity,Appointment a)
     {
         CommonResult result=new CommonResult();
-        SMRUtil smrUtil=new SMRUtil();
         try{
-            String type=smrUtil.getConferenceType(a.getDuration(),a.getAttendees().size());
-            String start=SMRUtil.getSchedule(a.getStartTime(),type);
-            String end=SMRUtil.getSchedule(a.getEndTime(),type);
+            ScheduleConfig scheduleConfig=smrUtil.getScheduleConfigFromRedis(a.getCompanyId());
+            String type=smrUtil.getConferenceType(scheduleConfig,a.getDuration(),a.getAttendees().size());
+            SimpleDateFormat formattter1 = new SimpleDateFormat("HH:mm");
+            String start=SMRUtil.getSchedule(scheduleConfig, Timestamp.valueOf(formattter1.format(a.getStartTime())),type);
+            String end=SMRUtil.getSchedule(scheduleConfig,Timestamp.valueOf(formattter1.format(a.getEndTime())),type);
             a.setType(type);
             a.setOrdererType(identity);
-            System.out.println("TYPE:"+type);
-            System.out.println("startSchedule:"+start);
-            System.out.println("endSchedule:"+end);
             appointmentDAO.save(a);
             result.setMsg("预约成功");
             result.setData(a.getId());
-            scheduleDAO.updateStateForAppointmentById(a.getPlace_id(),start,end);
+            for(Attendees attendees :a.getAttendees())
+            {
+                attendees.setAppointmentId(a.getId());
+            }
+            attendeesDAO.saveAll(a.getAttendees());
+            String dayOfWeek=smrUtil.getDayOfWeek(a.getStartTime());
+            scheduleDAO.updateStateForAppointment(a.getPlace_id(),start,end,a.getCompanyId(),dayOfWeek);
         }
         catch (Exception e)
         {

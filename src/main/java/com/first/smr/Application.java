@@ -20,15 +20,14 @@ import java.util.Date;
 public class Application extends SpringBootServletInitializer {//①继承Servlet初始化器
     public static void main (String []args) throws Exception{
         SpringApplication.run(Application.class,args);
-        SMRUtil.setScheduleList("短时");
-        SMRUtil.setScheduleList("中时");
-        SMRUtil.setScheduleList("长时");
+//        SMRUtil.setScheduleList("短时");
+//        SMRUtil.setScheduleList("中时");
+//        SMRUtil.setScheduleList("长时");
         Date start = null;
         SimpleDateFormat formattter1 = new SimpleDateFormat("HH:mm");
         try {
-            start = formattter1.parse("8:30");
-            String temp=SMRUtil.getSchedule(start,"A");
-            System.out.println(temp);
+            start = formattter1.parse("9:30");
+//            String temp=SMRUtil.getSchedule(start,"A");
             // ScheduleConfig.sSchedule=40;
             //SMRUtil.setScheduleList("短时");
             //System.out.println(SMRUtil.getSchedule(formattter1.parse("8:30"),"A"));

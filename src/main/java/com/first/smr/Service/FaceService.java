@@ -5,10 +5,13 @@ import com.arcsoft.face.FaceInfo;
 import com.arcsoft.face.FaceSimilar;
 import com.arcsoft.face.enums.ImageFormat;
 import com.first.smr.CommonResult;
+import com.first.smr.DAO.AttendeesDAO;
 import com.first.smr.DAO.StaffDAO;
 import com.first.smr.DAO.VisitorDAO;
 import com.first.smr.FaceEngineConfig;
 import com.first.smr.ImageInfo;
+import com.first.smr.POJO.Attendees;
+import com.first.smr.POJO.Staff;
 import com.first.smr.Util.ImageUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +31,8 @@ public class FaceService {
     private StaffDAO staffDAO;
     @Resource
     private VisitorDAO visitorDAO;
+    @Resource
+    private AttendeesDAO attendeesDAO;
     private int plusHundred(Float value) {
         BigDecimal target = new BigDecimal(value);
         BigDecimal hundred = new BigDecimal(100f);
@@ -81,6 +86,59 @@ public class FaceService {
         return result;
     }
 
+    //考勤
+    public CommonResult attendanceCheck(MultipartFile faceInfo, BigInteger id)
+    {
+        CommonResult result=new CommonResult();
+        List<Attendees> attendeesList = attendeesDAO.findByAppointmentId(id);
+        List<Staff> staff = new ArrayList<>();
+        for(int i=0;i<attendeesList.size();i++){
+            staff.add(staffDAO.findByStaffId(attendeesList.get(i).getPersonId()));
+        }
+        if(faceInfo==null)
+        {
+            result.setMsg("bad image");
+            result.setResult("fail");
+        }
+        else
+        {
+            try {
+                List<FaceFeature> targetFaceFeature = getFaceFeatureList(faceInfo);
+                List<FaceFeature> sourceFaceFeature = new ArrayList<>();
+                byte[] faceFeature=null;
+                for(int i=0;i<staff.size();i++){
+                    faceFeature = staff.get(i).getFace_info();
+                    sourceFaceFeature.get(i).setFeatureData(faceFeature);
+                    FaceSimilar similar = new FaceSimilar();
+                    for(int j=0;j<targetFaceFeature.size();j++){
+                        FaceEngineConfig.faceEngine.compareFaceFeature(sourceFaceFeature.get(i), targetFaceFeature.get(j), similar);
+                        if(plusHundred(similar.getScore())>FaceEngineConfig.passRate){
+                            Staff s = staffDAO.findByFaceInfo(faceFeature);
+                            Attendees attendees = attendeesDAO.findByPersonId(s.getId());
+                            attendees.setState("已出席");
+                            attendeesDAO.save(attendees);
+                            result.setMsg("验证完成");
+                            break;
+                        }
+                        else
+                        {
+                            result.setMsg("无法识别人脸信息，请重试");
+                            result.setResult("fail");
+                            continue;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                result.setStatus(500);
+                result.setMsg("考勤失败");
+            }
+        }
+        return result;
+    }
+
     //获取人脸特征
     private FaceFeature getFaceFeature(MultipartFile faceInfo)
     {
@@ -98,6 +156,29 @@ public class FaceService {
         FaceFeature faceFeature = new FaceFeature();
         FaceEngineConfig.faceEngine.extractFaceFeature(imageInfo.getRgbData(), imageInfo.getWidth(), imageInfo.getHeight(), ImageFormat.CP_PAF_BGR24, faceInfoList.get(0), faceFeature);
         return faceFeature;
+    }
+
+    //获取人脸特征List
+    private List<FaceFeature> getFaceFeatureList(MultipartFile faceInfo)
+    {
+        InputStream inputStream = null;
+        try {
+            inputStream = faceInfo.getInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ImageInfo imageInfo= ImageUtil.getRGBData(inputStream);
+        //人脸检测
+        List<FaceInfo> faceInfoList = new ArrayList<FaceInfo>();
+        FaceEngineConfig.faceEngine.detectFaces(imageInfo.getRgbData(), imageInfo.getWidth(), imageInfo.getHeight(), ImageFormat.CP_PAF_BGR24, faceInfoList);
+        //提取人脸特征
+        FaceFeature faceFeature = new FaceFeature();
+        List<FaceFeature> faceFeatureList = new ArrayList<>();
+        for(int i=0;i<faceInfoList.size();i++){
+            FaceEngineConfig.faceEngine.extractFaceFeature(imageInfo.getRgbData(), imageInfo.getWidth(), imageInfo.getHeight(), ImageFormat.CP_PAF_BGR24, faceInfoList.get(i), faceFeature);
+            faceFeatureList.add(faceFeature);
+        }
+        return faceFeatureList;
     }
 
     //人脸认证

@@ -10,6 +10,10 @@ pageEncoding="UTF-8"%>
 <link href="/register/css/index.css" rel="stylesheet">
 <script src="/register/jquery-1.11.1.min.js"></script>
 <script src="/register/register.js"></script>
+<link rel="stylesheet" href="/layui/css/layui.css">
+<link rel="stylesheet" href="/layui/css/site.css">
+<script src="/layui/layui.js" charset="utf-8"></script>
+<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 </head>
 <body class="bgf4">
 <div class="login-box f-mt10 f-pb50">
@@ -37,7 +41,7 @@ pageEncoding="UTF-8"%>
             </div>
         	<div class="reg-box" id="verifyCheck" style="margin-top:20px;">
             	<div class="part1">
-                    <form action="/admin/SAddCompany" method="POST" id="formId">
+                    <form action="/admin/setCompanyInfoTemp" method="POST" id="formId" enctype="multipart/form-data">
                         <div class="item col-xs-12">
                             <span class="intelligent-label f-fl"><b class="ftx04">*</b>公司名：</span>
                             <div class="f-fl item-ifo">
@@ -93,6 +97,18 @@ pageEncoding="UTF-8"%>
                                 <label class="focus valid"></label>
                             </div>
                         </div>
+                        <%--<div class="item col-xs-12">--%>
+                            <%--<span class="intelligent-label f-fl"><b class="ftx04">*</b>营业执照：</span>--%>
+                            <%--<div class="f-fl item-ifo">--%>
+                                <%--<div id ="updiv" class="layui-form-item">--%>
+                                    <%--<button type="button" class="layui-btn layui-btn-normal" id="placeImage">选择文件</button>--%>
+                                    <%--<button type="button" class="layui-btn" id="uploadButton" onclick="upload();">开始上传</button>--%>
+                                    <%--<iframe name="frame1" frameborder="0" height="40"></iframe>--%>
+                                <%--</div>--%>
+                                <%--<span class="ie8 icon-close close hide"></span>--%>
+                                <%--<label class="icon-sucessfill blank hide"></label>--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
                         <div class="item col-xs-12">
                             <span class="intelligent-label f-fl"><b class="ftx04">*</b>验证码：</span>
                             <div class="f-fl item-ifo">
@@ -116,7 +132,7 @@ pageEncoding="UTF-8"%>
                         <div class="item col-xs-12">
                             <span class="intelligent-label f-fl">&nbsp;</span>
                             <div class="f-fl item-ifo">
-                               <a href="javascript:;" class="btn btn-blue f-r3" id="btn_part1">下一步</a>
+                               <a href="javascript:;" class="btn btn-blue f-r3" id="btn_part1" onclick="upload()">下一步</a>
                             </div>
                         </div>
                     </form>
@@ -166,7 +182,20 @@ pageEncoding="UTF-8"%>
     </div>
     <center><a class="btn btn-blue btn-lg f-size12 b-b0 b-l0 b-t0 b-r0 f-pl50 f-pr50 f-r3" href="javascript:closeClause();">已阅读并同意此条款</a></center>
 </div>
+<script src="/layui/layui.js"></script>
 <script>
+
+    layui.use('upload', function(){
+        var $ = layui.jquery
+            ,upload = layui.upload;
+        //拖拽上传
+        upload.render({
+            elem: '#placeImage'
+            ,accept: 'file'
+            ,auto: false
+        });
+    });
+
     var address;
     var name;
     var register_num;
@@ -195,8 +224,7 @@ pageEncoding="UTF-8"%>
     }
     // 保存公司信息
     function submitCompApply(){
-        var url = "/admin/companyApply?name="+name+"&address="+address+"&register_num="+register_num+"&introduction="
-        +introduction+"&head_name="+head_name+"&head_phone="+head_phone;
+        var url = "/admin/UploadCompanyInfo";
         createXMLHttpRequest();
         xmlHttp.onreadystatechange = handleStateChange;
         xmlHttp.open("GET", url, true); xmlHttp.send(null);

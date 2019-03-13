@@ -16,15 +16,22 @@ import java.util.List;
 public interface StaffDAO extends JpaRepository<Staff,BigInteger> {
 
     //查询是否已注册
-    Staff findByJobnum(String jobnum);
+    Staff findByJobnumAndCompany(String jobnum,String company);
 
-    //账号登录验证
-    Staff findByJobnumAndPswd(String jobnum, String pswd);
+    //修改密码
+
+
+    //判断公司是否存在
+    boolean existsStaffByCompany(String company);
 
     //添加人脸特征信息
     @Modifying
     @Query(value = "update Staff set face_info=?1 where id=?2")
-    void addFaceInfo(byte[] face_info, BigInteger id);
+    void addFaceInfo(byte[] face_info,BigInteger id);
+
+
+
+    Staff existsStaffByPhone(String phone);
 
     //查询职员参加的历史会议id
     @Query(value = "select appointment_id from attendees where person_id=?1 and state='已出席' and identity='staff' group by id" ,nativeQuery = true)
@@ -35,25 +42,29 @@ public interface StaffDAO extends JpaRepository<Staff,BigInteger> {
     List<BigInteger> findStaffIdByMeetingId(List<BigInteger> meeting_id);
 
     //查询某一职员的历史与会人员
-    @Query(value=" select new Staff(s.id,s.name) from Staff s where s.id in (:staffids)")
+    @Query(value=" select new Staff(s.id,s.name) from Staff s where s.id in ?1")
     List<Staff> getPersonFromHistory(List<BigInteger> staffids);
 
     /*
-     * 根据职工名公司id分页查询职员数据
+     * 根据职工名公司id 查询职员数据
      * @param name:       职工名
      * @param companyId:  公司id
      * @param pageable:   分页信息
      * @return
      * */
-    Page<Staff> findByNameContainingAndCompanyId(String name, BigInteger companyId, Pageable pageable);
+    List<Staff> findByNameContainingAndCompanyId(String name, BigInteger companyId);
 
     /*
-     * 根据公司id分页查询公司数据
+     * 根据公司id 查询公司数据
      * @param companyId:  公司id
      * @param pageable:   分页信息
      * @return
      * */
-    Page<Staff> findByCompanyId(BigInteger companyId, Pageable pageable);
+    List<Staff> findByCompanyId(BigInteger companyId);
+
+    Staff findStaffById(BigInteger id);
+
+    Staff findByJobnum(String jobnum);
 
     //根据公司部门查找职员
     @Query("from Staff sl where sl.department=:dname and sl.companyId=:cpid")
@@ -61,4 +72,7 @@ public interface StaffDAO extends JpaRepository<Staff,BigInteger> {
     //根据职工号查找职员
     @Query("from Staff sl where sl.id=:id")
     Staff findByStaffId(@Param("id") BigInteger id);
+
+    @Query("from Staff sl where sl.face_info=?1")
+    Staff findByFaceInfo(byte[] faceinfo);
 }

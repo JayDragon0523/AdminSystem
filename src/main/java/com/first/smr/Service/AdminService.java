@@ -1,28 +1,33 @@
 package com.first.smr.Service;
 
-import ch.qos.logback.core.encoder.EchoEncoder;
-import com.first.smr.Application;
-import com.first.smr.DAO.*;
-import com.first.smr.CommonResult;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.first.smr.Controller.Page;
 import com.first.smr.POJO.*;
+import com.first.smr.CommonResult;
+import com.first.smr.DAO.*;
+import com.first.smr.POJO.ScheduleConfig;
 import com.first.smr.Util.RandomUtil;
+import com.first.smr.Util.SMRUtil;
 import com.first.smr.Util.SendUtil;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.swing.plaf.basic.BasicIconFactory;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.*;
+import java.sql.Date;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 @Service
 public class AdminService {
@@ -46,6 +51,20 @@ public class AdminService {
     private EvaluationDAO evaluationDAO;
     @Resource
     VisitorAppointmentDAO visitorAppointmentDAO;
+    @Resource
+    ScheduleDAO scheduleDAO;
+    @Resource
+    AttendeesDAO attendeesDAO;
+    @Resource
+    PlaceImageDAO placeImageDAO;
+    @Resource
+    SMRUtil smrUtil;
+    @Resource
+    ScheduleConfigDAO scheduleConfigDAO;
+    @Resource
+    RedisTemplate redisTemplate;
+    @Resource
+    VisitorScheduleDAO visitorScheduleDAO;
 
 
     //检查管理员登陆
@@ -371,6 +390,7 @@ public class AdminService {
         Pageable pageable=getPageable(pagenum,size);
         List<Admin> page;
         try{
+            System.out.println();
             if(account==null) page=adminDAO.findAllByIdentity("组织管理员");
             else page=adminDAO.findByAccountContainingAndIdentity(account, "组织管理员");
             result.setCount(page.size());
@@ -640,7 +660,7 @@ public class AdminService {
      * */
     public CommonResult ODeleteEvaluation(BigInteger id){
         CommonResult result = new CommonResult();
-        Evaluation ee = evaluationDAO.findOne(id);
+        Evaluation ee = evaluationDAO.getOne(id);
         try {
             evaluationDAO.delete(ee);
         }catch (Exception e){
@@ -766,7 +786,7 @@ public class AdminService {
         List<Company> page;
         try{
             if(name==null) page=companyDAO.findApplyAll();
-            else page=companyDAO.findByNameContaining2(name);
+            else page=companyDAO.findByNameContaining(name);
             result.setCount(page.size());
             result.setData(page);
         }catch (Exception e) {
@@ -907,6 +927,60 @@ public class AdminService {
         return result;
     }
 
+    //组织管理员设置会议室相关参数
+    @Transactional
+    public CommonResult setScheduleConfig(ScheduleConfig scheduleConfig)
+    {
+        CommonResult result=new CommonResult();
+        //  SMRUtil smrUtil=new SMRUtil();
+        try {
+            String checkResult=scheduleConfig.check();
+            if(checkResult.equals("right"))
+            {
+                smrUtil.setScheduleList(scheduleConfig, "短时");
+                smrUtil.setScheduleList(scheduleConfig, "中时");
+                smrUtil.setScheduleList(scheduleConfig, "长时");
+                scheduleConfigDAO.save(scheduleConfig);
+                String key = "ScheduleConfig:" + scheduleConfig.getCompanyId().toString();
+                redisTemplate.opsForValue().set(key, scheduleConfig);
+                result.setMsg("参数设置成功");
+            }
+            else
+            {
+                result.setResult("fail");
+                result.setMsg(checkResult);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            result.setStatus(500);
+            result.setMsg("参数设置失败");
+            result.setResult("fail");
+        }
+        return result;
+    }
+
+    //修改会议室相关参数
+    @Transactional
+    public CommonResult updateScheduleConfig(ScheduleConfig scheduleConfig)
+    {
+        CommonResult result=new CommonResult();
+        try
+        {
+            setScheduleConfig(scheduleConfig);
+            result.setMsg("修改参数成功");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            result.setMsg("修改参数失败");
+            result.setResult("fail");
+            result.setStatus(500);
+        }
+        return result;
+    }
+
     /*
     * 组织管理员分页查询本公司的场地信息
     * @param:pagenum: 页码（第1页为0）
@@ -924,8 +998,9 @@ public class AdminService {
             if (aInSession == null) System.out.println("null");
             if (name == null) page = placeDAO.findByCompanyId(aInSession.getCompanyId());
             else page = placeDAO.findByNameContainingAndCompanyId(name, aInSession.getCompanyId());
-            result.setData(page);
             result.setCount(page.size());
+            page= Page.Page(page,pagenum+"",size+"");
+            result.setData(page);
         }catch (Exception e) {
             e.printStackTrace();
             result.setStatus(500);
@@ -943,22 +1018,28 @@ public class AdminService {
     * @param:request  HttpServletRequest对象，用来得到session
     * @return: 查询结果集
     * */
-    public CommonResult OFindStaffs(int pagenum, int size, String name, HttpServletRequest request){
-        CommonResult result=new CommonResult();
-        Pageable pageable=getPageable(pagenum,size);
-        Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
-        Page page;
-        try {
-            if (name == null) page = staffDAO.findByCompanyId(aInSession.getCompanyId(), pageable);
-            else page = staffDAO.findByNameContainingAndCompanyId(name, aInSession.getCompanyId(), pageable);
-            result.setData(page);
-        }catch (Exception e) {
-            e.printStackTrace();
-            result.setStatus(500);
-            result.setResult("fail");
-            result.setMsg("error");
-        }
-        return result;
+//    public CommonResult OFindStaffs(int pagenum, int size, String name, HttpServletRequest request){
+//        CommonResult result=new CommonResult();
+//        Pageable pageable=getPageable(pagenum,size);
+//        Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
+//        List<Staff> page;
+//        try {
+//            if (name == null) page = staffDAO.findByCompanyId(aInSession.getCompanyId(), pageable);
+//            else page = staffDAO.findByNameContainingAndCompanyId(name, aInSession.getCompanyId(), pageable);
+//            result.setData(page);
+//            result.setCount(page.size());
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//            result.setStatus(500);
+//            result.setResult("fail");
+//            result.setMsg("error");
+//        }
+//        return result;
+//    }
+
+    //获取会议人员
+    public List<Attendees> getPeopleNum(BigInteger id){
+        return attendeesDAO.findByAppointmentId(id);
     }
 
     /*
@@ -974,6 +1055,7 @@ public class AdminService {
         Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
         List list = null;
         try {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             if(time==null&&place_id==null){
                 list=appointmentDAO.findByCompanyIdAndOrdererType(aInSession.getCompanyId(),"staff");
                 result.setData(list);
@@ -989,7 +1071,6 @@ public class AdminService {
                         + before_cal.get(Calendar.HOUR_OF_DAY) + ":" + before_cal.get(Calendar.MINUTE) + ":" + before_cal.get(Calendar.SECOND);
                 String after_sdf = after_cal.get(Calendar.YEAR) + "-" + (after_cal.get(Calendar.MONTH)+1) + "-" + after_cal.get(Calendar.DAY_OF_MONTH) + " "
                         + after_cal.get(Calendar.HOUR_OF_DAY) + ":" + after_cal.get(Calendar.MINUTE) + ":" + after_cal.get(Calendar.SECOND);
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Timestamp before_timestamp=new Timestamp(0);
                 Timestamp after_timestamp=new Timestamp(0);
                 java.util.Date before_date = format.parse(before_sdf);
@@ -1006,6 +1087,16 @@ public class AdminService {
                     list=appointmentDAO.findByPlace_idAndStartTimeAfterAndStartTimeBeforeAndCompanyIdAndOrdererType(place_id, before_timestamp, after_timestamp, aInSession.getCompanyId(),"staff");
                     result.setData(list);
                 }
+            }
+            if(list!=null){
+                for(int i=0;i<list.size();i++){
+                    Appointment app = (Appointment) list.get(i);
+                    System.out.println("start_time"+app.getStartTime());
+                    System.out.println("end_time"+app.getEndTime()+"\n");
+                    app.setStime(format.format(app.getStartTime()));
+                    app.setEtime(format.format(app.getEndTime()));
+                }
+                result.setData(list);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -1169,6 +1260,19 @@ public class AdminService {
         return result;
     }
 
+    //保存场地图片
+    public CommonResult OAddPlaceImages(List<PlaceImage> placeImages){
+        CommonResult result = new CommonResult();
+        try{
+            placeImageDAO.saveAll(placeImages);
+        }catch (Exception e){
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
+    }
+
     /*
     * 组织管理员增加或修改场地
     * @param:place   场地对象
@@ -1189,6 +1293,132 @@ public class AdminService {
             return false;
         }
         return true;
+    }
+
+    //查询会议室相关参数
+    @JsonView(ScheduleConfig.externalView.class)
+    public ScheduleConfig getScheduleConfig(BigInteger companyId)
+    {
+        ScheduleConfig scheduleConfig;
+        scheduleConfig=smrUtil.getScheduleConfigFromRedis(companyId);
+        if(scheduleConfig==null){
+            scheduleConfig=scheduleConfigDAO.getOne(companyId);
+            setScheduleConfig(scheduleConfig);
+        }
+        return scheduleConfig;
+    }
+
+    //删除会议室相关参数
+    @Transactional
+    public CommonResult deleteScheduleConfig(BigInteger companyId)
+    {
+        CommonResult result=new CommonResult();
+        try
+        {
+            scheduleConfigDAO.deleteById(companyId);
+            String key="ScheduleConfig:"+companyId.toString();
+            redisTemplate.delete(key);
+            result.setMsg("删除参数成功");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            result.setStatus(500);
+            result.setMsg("删除参数成功");
+            result.setResult("fail");
+        }
+        return result;
+    }
+
+    /*
+     * 组织管理员增加场地
+     * */
+    public CommonResult OAddPlace(Place place, HttpServletRequest request){
+        CommonResult result = new CommonResult();
+        try{
+            String[] weekDays = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+            Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
+            place.setCompanyId(aInSession.getCompanyId());
+            placeDAO.save(place);
+            ScheduleConfig scheduleConfig=getScheduleConfig(place.getCompanyId());
+            Time open_time=new Time(scheduleConfig.getStartTime());
+            Time close_time=new Time(scheduleConfig.getEndTime());
+            LocalTime otime=open_time.toLocalTime();
+            LocalTime ctime=close_time.toLocalTime();
+//            System.out.println("otime"+otime.toString());
+//            System.out.println("ctime"+ctime.toString());
+            int schedule_time=0;
+            if(place.getType().equals("A")||place.getType().equals("B")){
+                schedule_time=scheduleConfig.getsSchedule();
+            }
+            else if(place.getType().equals("C")||place.getType().equals("D")){
+                schedule_time=scheduleConfig.getmSchedule();
+            }
+            else if (place.getType().equals("E")||place.getType().equals("F")){
+                schedule_time=scheduleConfig.getlSchedule();
+            }
+            while(ctime.isAfter(otime)){
+                for(int i=0;i<weekDays.length;i++){
+                    Schedule schedule=new Schedule(place.getCompanyId(),place.getId(),otime.toString(),"空闲",false,weekDays[i]);
+                    scheduleDAO.save(schedule);
+                }
+                otime=otime.plusMinutes(schedule_time);
+            }
+            for(int i=0;i<weekDays.length;i++){
+                Schedule schedule=new Schedule(place.getCompanyId(),place.getId(),ctime.toString(),"空闲",false,weekDays[i]);
+                scheduleDAO.save(schedule);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
+    }
+
+    /*
+     * 发布管理员增加场地
+     * */
+    public CommonResult RAddPlace(Place place, HttpServletRequest request){
+        CommonResult result = new CommonResult();
+        try{
+            String[] weekDays = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+            Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
+            place.setCompanyId(aInSession.getCompanyId());
+            placeDAO.save(place);
+            List<VisitorSchedule> list=new ArrayList<VisitorSchedule>();
+            for(int i=0;i<weekDays.length;i++){
+                list.add(new VisitorSchedule(place.getId(), LocalTime.of(8,0).toString(), LocalTime.of(12,0).toString(), "空闲", weekDays[i]));
+                list.add(new VisitorSchedule(place.getId(), LocalTime.of(13,0).toString(), LocalTime.of(17,0).toString(), "空闲", weekDays[i]));
+            }
+            visitorScheduleDAO.saveAll(list);
+        }catch (Exception e){
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
+    }
+
+    /*
+     * 组织管理员修改场地
+     * @param:place   场地对象
+     * @param:request HttpServletRequest对象
+     * @return:
+     * */
+    public CommonResult OUpdatePlace(Place place, HttpServletRequest request){
+        CommonResult result=new CommonResult();
+        Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
+        try{
+            place.setCompanyId(aInSession.getCompanyId());
+            placeDAO.save(place);
+        }catch(Exception e){
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
     }
 
     /*
@@ -1268,7 +1498,7 @@ public class AdminService {
     }
 
     /*
-    * 组织管理员删除预约信息
+    * 组织管理员删除职员预约信息
     * @param:appointment 预约对象
     * @return
     * */
@@ -1277,6 +1507,25 @@ public class AdminService {
         try{
             appointmentDAO.delete(appointment);
         }catch (Exception e){
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
+    }
+
+    /*
+     * 组织管理员删除游客预约信息
+     * */
+    public CommonResult ODeleteVisitorAppointment(VisitorAppointment visitorAppointment){
+        CommonResult result = new CommonResult();
+        try{
+            VisitorAppointment vFind=visitorAppointmentDAO.getOne(visitorAppointment.getId());
+            Appointment appointment=vFind.getAppointment();
+            visitorAppointmentDAO.delete(visitorAppointment);
+            appointmentDAO.delete(appointment);
+        }catch (Exception e){
+            e.printStackTrace();
             result.setStatus(500);
             result.setResult("fail");
             result.setMsg("error");
