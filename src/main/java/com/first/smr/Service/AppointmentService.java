@@ -36,25 +36,28 @@ public class AppointmentService {
 
     //预约会议
     @Transactional
-    public CommonResult appointment(String identity,Appointment a)
+    public CommonResult appointment(String identity,Appointment a,int capacity)
     {
         CommonResult result=new CommonResult();
         try{
             ScheduleConfig scheduleConfig=smrUtil.getScheduleConfigFromRedis(a.getCompanyId());
-            String type=smrUtil.getConferenceType(scheduleConfig,a.getDuration(),a.getAttendees().size());
+            String type=smrUtil.getConferenceType(scheduleConfig,a.getDuration(),capacity);
             SimpleDateFormat formattter1 = new SimpleDateFormat("HH:mm");
-            String start=SMRUtil.getSchedule(scheduleConfig, Timestamp.valueOf(formattter1.format(a.getStartTime())),type);
-            String end=SMRUtil.getSchedule(scheduleConfig,Timestamp.valueOf(formattter1.format(a.getEndTime())),type);
+            String start=SMRUtil.getSchedule(scheduleConfig, formattter1.parse(a.getStime().substring(11,16)),type);
+            String end=SMRUtil.getSchedule(scheduleConfig,formattter1.parse(a.getEtime().substring(11,16)),type);
             a.setType(type);
             a.setOrdererType(identity);
             appointmentDAO.save(a);
+            if(a.getAttendees()==null) {
+                System.out.println("无历史与会人员");
+            }else{
+                for (Attendees attendees : a.getAttendees()) {
+                    attendees.setAppointmentId(a.getId());
+                }
+                attendeesDAO.saveAll(a.getAttendees());
+            }
             result.setMsg("预约成功");
             result.setData(a.getId());
-            for(Attendees attendees :a.getAttendees())
-            {
-                attendees.setAppointmentId(a.getId());
-            }
-            attendeesDAO.saveAll(a.getAttendees());
             String dayOfWeek=smrUtil.getDayOfWeek(a.getStartTime());
             scheduleDAO.updateStateForAppointment(a.getPlace_id(),start,end,a.getCompanyId(),dayOfWeek);
         }
@@ -74,8 +77,9 @@ public class AppointmentService {
     {
         CommonResult result=new CommonResult();
         try {
-            //appointmentDAO.delete(appointmentId);
-            appointmentDAO.deleteById(appointmentId);
+            Appointment a = appointmentDAO.findOne(appointmentId);
+            appointmentDAO.delete(a);
+            //appointmentDAO.deleteById(appointmentId);
             result.setMsg("取消预约会议成功");
         }
         catch (Exception e)
@@ -121,11 +125,17 @@ public class AppointmentService {
         try
         {
             List<BigInteger> idList=appointmentDAO.getAppointmentId(personId,"未出席",identity);
-            for(int i=0;i<idList.size();i++)
-                System.out.println("TT:"+idList.get(i));
-            List<ConferenceMess> recent=conferenceMessDAO.findByAppointmentIdIn(idList);
-            result.setMsg("获取最近需要出席的会议成功");
-            result.setData(recent);
+            if(idList.size() == 0){
+                result.setStatus(500);
+                result.setMsg("最近没有需要出席的会议");
+                result.setResult("fail");
+            }else {
+                for (int i = 0; i < idList.size(); i++)
+                    System.out.println("TT:" + idList.get(i));
+                List<ConferenceMess> recent = conferenceMessDAO.findByAppointmentIdIn(idList);
+                result.setMsg("获取最近需要出席的会议成功");
+                result.setData(recent);
+            }
         }
         catch (Exception e)
         {
@@ -138,12 +148,12 @@ public class AppointmentService {
     }
 
     //获取已预约会议
-    public CommonResult getAppointment(BigInteger personId,String orderType)
+    public CommonResult getAppointment(BigInteger personId,String identity)
     {
         CommonResult result=new CommonResult();
         try
         {
-            List<Appointment> temp=appointmentDAO.getAppointmentByOrderer_id(personId,orderType);
+            List<Appointment> temp=appointmentDAO.getAppointmentByOrderer_id(personId,identity);
             List<BigInteger> appointmentIdList=new ArrayList<BigInteger>();
             List<ConferenceMess> conferenceMessList;
             for(Appointment appointment:temp)
@@ -152,9 +162,13 @@ public class AppointmentService {
                 if( appointment.getStartTime().after(now))
                     appointmentIdList.add(appointment.getId());
             }
-            conferenceMessList=conferenceMessDAO.findByAppointmentIdIn(appointmentIdList);
-            result.setMsg("获取预约会议成功");
-            result.setData(conferenceMessList);
+            if(appointmentIdList.isEmpty())
+                result.setMsg("暂无已预约会议");
+            else {
+                conferenceMessList = conferenceMessDAO.findByAppointmentIdIn(appointmentIdList);
+                result.setMsg("获取预约会议成功");
+                result.setData(conferenceMessList);
+            }
         }
         catch (Exception e)
         {
@@ -173,9 +187,15 @@ public class AppointmentService {
         try
         {
             List<BigInteger> idList=appointmentDAO.getAppointmentId(id,"已出席",identity);
-            List<ConferenceMess> history=conferenceMessDAO.findByAppointmentIdIn(idList);
-            result.setMsg("获取历史会议成功");
-            result.setData(history);
+            if(idList.size() == 0){
+                result.setStatus(500);
+                result.setMsg("无历史会议");
+                result.setResult("fail");
+            }else {
+                List<ConferenceMess> history = conferenceMessDAO.findByAppointmentIdIn(idList);
+                result.setMsg("获取历史会议成功");
+                result.setData(history);
+            }
         }
         catch (Exception e)
         {

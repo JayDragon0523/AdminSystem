@@ -5,7 +5,7 @@ import java.util.List;
 public class RecommendResult {
     private String message;
     private int count;
-    private List<Recommend> recommends;
+    private List<Object> recommends;
 
     public String getMessage() {
         return message;
@@ -15,11 +15,11 @@ public class RecommendResult {
         this.message = message;
     }
 
-    public List<Recommend> getRecommends() {
+    public List<Object> getRecommends() {
         return recommends;
     }
 
-    public void setRecommends(List<Recommend> recommends) {
+    public void setRecommends(List<Object> recommends) {
         this.recommends = recommends;
     }
 

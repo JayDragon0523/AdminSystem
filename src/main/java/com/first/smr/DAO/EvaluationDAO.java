@@ -22,6 +22,11 @@ public interface EvaluationDAO extends JpaRepository<Evaluation, BigInteger> {
     @Modifying
     void deleteEvaluationById(BigInteger evaluationId);
 
-    @Query(value="from Evaluation e where e.placeId in (:placeId)")
+    //查看游客评价
+    @Query(value="from Evaluation e where e.placeId in (:placeId) and e.visitor_id is not null")
     List<Evaluation> findByCompanyId(List<BigInteger> placeId);
+
+    //查看职员评价
+    @Query(value="from Evaluation e where e.placeId in (:placeId) and e.staff_id is not null")
+    List<Evaluation> findByCompanyId2(List<BigInteger> placeId);
 }

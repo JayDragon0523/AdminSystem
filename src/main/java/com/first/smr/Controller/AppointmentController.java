@@ -7,7 +7,13 @@ import com.first.smr.Service.AppointmentService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -17,24 +23,44 @@ public class AppointmentController {
     AppointmentService appointmentService;
 
     //预约会议
-    @RequestMapping(value = "/{identity}/appointment",method = RequestMethod.POST)
-    public CommonResult appointment(@PathVariable("identity") String identity, Appointment a)
+    @RequestMapping(value = "/{identity}/appointment",method = {RequestMethod.POST,RequestMethod.GET})
+    public CommonResult appointment(@PathVariable("identity") String identity,Appointment a,int capacity)
     {
-        return appointmentService.appointment(identity,a);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        long startDay = 0; long endDay = 0;
+        try {
+//            Date dateStart = format.parse(a.getStime());
+//            Date datEnd = format.parse(a.getEtime());
+//            startDay = (dateStart.getTime());
+//            endDay = (datEnd.getTime());
+            a.setStartTime(Timestamp.valueOf(a.getStime()));
+            a.setEndTime(Timestamp.valueOf(a.getEtime()));
+            System.out.println(a.getStartTime());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return appointmentService.appointment(identity,a,capacity);
     }
 
     //取消预约
     @RequestMapping(value="/cancelAppointment",method= RequestMethod.GET)
-    public CommonResult cancelAppointment(BigInteger appointmentId)
-    {
+    public CommonResult cancelAppointment(BigInteger appointmentId,HttpServletResponse response) throws ServletException, IOException {
+        StringBuffer xml = new StringBuffer("<result>");
+        xml.append("<status>1</status>");
+        xml.append("<func>cancelSuccess();</func>");
+        xml.append("</result>");
+        sendResponse(response, xml.toString());
         return appointmentService.cancelAppointment(appointmentId);
     }
 
     //添加与会人员
-    @RequestMapping(value="/{identity}/addAttendPerson",method = RequestMethod.POST)
+    @RequestMapping(value="/{identity}/addAttendPerson",method = {RequestMethod.GET,RequestMethod.POST})
     public CommonResult addAttendPerson(@PathVariable("identity") String identity, @RequestParam(value = "meetingId") BigInteger meetingId, List<Attendees> attendees)
     {
-        return appointmentService.addAttendPerson(identity,meetingId,attendees);
+        if(attendees.size()!=0)
+            return appointmentService.addAttendPerson(identity,meetingId,attendees);
+        else
+            return new CommonResult(200,"无与会人员，请直接提交预约");
     }
 
 
@@ -66,5 +92,10 @@ public class AppointmentController {
         return appointmentService.alterConference(appointment);
     }
 
-
+    private void sendResponse(HttpServletResponse response, String responseText)
+            throws ServletException, IOException {
+        response.setContentType("text/xml");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().print(responseText);
+    }
 }

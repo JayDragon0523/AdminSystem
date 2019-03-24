@@ -27,9 +27,10 @@ public class PlaceController {
     PlaceService placeService;
     //获取可供预约的会议室列表(职员）
     @RequestMapping(value="/staff/getRecommendList",method = {RequestMethod.POST,RequestMethod.GET})
-    public CommonResult getRecommendList(@RequestParam BigInteger companyId, @RequestParam String starttime, @RequestParam String endtime, @RequestParam int duration, @RequestParam int capacity)//返回推荐会议室
+    public CommonResult getRecommendList(@RequestParam BigInteger companyId, @RequestParam String starttime, @RequestParam String endtime, @RequestParam int duration, @RequestParam int capacity
+    ,@RequestParam(required = false) String longitude,@RequestParam(required = false) String latitude)//返回推荐会议室
     {
-        return placeService.getRecommendList(companyId,starttime,endtime,duration,capacity);
+        return placeService.getRecommendList(companyId,starttime,endtime,duration,capacity,longitude,latitude);
     }
 
     //获取会议室详情(职员）
@@ -91,6 +92,9 @@ public class PlaceController {
         JSONObject jsonOb = jsonArray.getJSONObject(0);
         JSONArray placelist = jsonOb.getJSONArray("recommends");
         List<Place> places = new ArrayList<>();
+        JSONObject jsonOb2 = jsonArray.getJSONObject(1);
+        JSONArray placelist2 = jsonOb2.getJSONArray("recommends");
+        List<Place> places2 = new ArrayList<>();
         for(int i = 0; i < placelist .size(); i++) {
             JSONObject jsonObc= placelist.getJSONObject(i);
             Place p = new Place();
@@ -106,7 +110,23 @@ public class PlaceController {
             p.setIntroduction(introduction);p.setType(type);p.setCapacity(Integer.parseInt(capacity));p.setDevice(device);
             places.add(p);
         }
+        for(int i = 0; i < placelist2 .size(); i++) {
+            JSONObject jsonObc= placelist.getJSONObject(i);
+            Place p = new Place();
+            String id = jsonObc.get("id").toString();
+            String name = jsonObc.get("name").toString();
+            String address = jsonObc.get("address").toString();
+            String introduction = jsonObc.get("introduction").toString();
+            String instruction = jsonObc.get("instruction").toString();
+            String type = jsonObc.get("type").toString();
+            String capacity = jsonObc.get("capacity").toString();
+            String device = jsonObc.get("device").toString();
+            p.setId(new BigInteger(id));p.setName(name);p.setAddress(address);p.setInstruction(instruction);
+            p.setIntroduction(introduction);p.setType(type);p.setCapacity(Integer.parseInt(capacity));p.setDevice(device);
+            places2.add(p);
+        }
         request.getSession().setAttribute("bestPlace",places);
+        request.getSession().setAttribute("nextPlace",places2);
         return "success";
     }
 
@@ -123,16 +143,14 @@ public class PlaceController {
 
 
     @RequestMapping(value="/{identity}/showNextRecommand")
-    @ResponseBody
-    public void showNextRecommand( @PathVariable("identity")String identity,@RequestParam("placelist")String placeList,HttpServletRequest request) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        //使用jackson将json转为List<Attendees>
-        JavaType jt = mapper.getTypeFactory().constructParametricType(ArrayList.class, Attendees.class);
-        List<Place> list =  (List<Place>)mapper.readValue(placeList, jt);
-        int count = list.size();
-        //list= Page.Page(list,request.getParameter("page"),request.getParameter("limit"));
-        String ret = JSON.toJSONString(list);
+    public void showNextRecommand(HttpServletResponse response,@PathVariable("identity")String identity,HttpServletRequest request) throws IOException, ServletException {
+        List<Place> places = (List<Place>) request.getSession().getAttribute("nextPlace");
+        int count = places.size();
+        places= Page.Page(places,request.getParameter("page"),request.getParameter("limit"));
+        String ret = JSON.toJSONString(places);
+        //System.out.println(ret);
         ret="{\"code\":0,\"msg\":\"\",\"count\": "+count+",\"data\":"+ret+"}";
+        sendResponse(response,ret);
     }
 
     private void sendResponse(HttpServletResponse response, String responseText)

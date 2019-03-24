@@ -19,7 +19,6 @@
         <!-- 头部区域（可配合layui已有的水平导航） -->
         <ul class="layui-nav layui-layout-left">
             <li class="layui-nav-item"><a href="">控制台</a></li>
-            <li class="layui-nav-item"><a href="">商品管理</a></li>
             <li class="layui-nav-item"><a href="">用户</a></li>
             <li class="layui-nav-item">
                 <a href="javascript:;">其它系统</a>
@@ -146,7 +145,7 @@
             <div class="layui-tab layui-tab-card" style="height:100% ">
                 <ul class="layui-tab-title">
                     <li >组织信息</li>
-                    <li>审核组织</li>
+                    <li id="judgeAdmin">审核组织</li>
                     <li id="addCompany">新增组织</li>
                     <li id="updateCompany" style="display: none">修改组织信息</li>
                 </ul>
@@ -199,12 +198,12 @@
                             <div class="layui-form-item">
                                 <label class="layui-form-label">联系方式</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="head_phone" required  lay-verify="required" placeholder="请输入组织联系方式" autocomplete="off" class="layui-input">
+                                    <input type="text" name="head_phone" required  lay-verify="required|phone" placeholder="请输入组织联系方式" autocomplete="off" class="layui-input">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <div class="layui-inline">
-                                    <button class="layui-btn" type="submit" lay-submit="" lay-filter="demo1">立即提交</button>
+                                    <button class="layui-btn" type="button" lay-submit="" lay-filter="demo1" onclick="addCompany()">立即提交</button>
                                     <button type="reset" class="layui-btn layui-btn-primary">重置</button>
                                 </div>
                             </div>
@@ -306,7 +305,7 @@
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <label class="layui-form-label">管理员身份证号</label>
+                                <label class="layui-form-label">身份证号</label>
                                 <div class="layui-input-block">
                                     <input type="text" name="id_num" required  lay-verify="required" placeholder="请输入身份证号" autocomplete="off" class="layui-input">
                                 </div>
@@ -320,8 +319,8 @@
                             <div class="layui-form-item">
                                 <div class="layui-inline">
                                     <label class="layui-form-label">密码</label>
-                                    <div class="layui-input-inline">
-                                        <input type="text" class="layui-input" name="pswd" placeholder="请输入密码"/>
+                                    <div class="layui-input-block">
+                                        <input type="password" class="layui-input" name="pswd" placeholder="请输入密码"/>
                                     </div>
                                 </div>
                             </div>
@@ -338,7 +337,7 @@
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <button type="submit" id="messageFormSubmit" class="layui-btn" onclick="setTimeout(upMessage,'1000');">确认添加</button>
+                                <button type="button" id="messageFormSubmit" class="layui-btn" onclick="addAdmin();">确认添加</button>
                                 <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset">重置</button>
                             </div>
                         </form>
@@ -384,15 +383,6 @@
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <div class="layui-inline">
-                                    <label class="layui-form-label">人脸信息</label>
-                                    <div class="layui-input-inline">
-                                        <input type="text" class="layui-input" name="face_info" placeholder="请输入人脸图片地址"
-                                        value="${sessionScope.admin.getFace_info()}"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
                                 <label class="layui-form-label">所属公司id</label>
                                 <div class="layui-input-block">
                                     <input type="text" name="companyId" required lay-verify="required" placeholder="请输入所属公司id" autocomplete="off" class="layui-input"
@@ -400,7 +390,7 @@
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <button type="submit" id="messageFormSubmit7" class="layui-btn" onclick="setTimeout(upMessage2,'1000');">确认修改</button>
+                                <button type="button" id="messageFormSubmit7" class="layui-btn" onclick="updateOAdminInfo();">确认修改</button>
                                 <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset7">重置</button>
                             </div>
                         </form>
@@ -430,7 +420,7 @@
                             <div class="layui-form-item">
                                 <label class="layui-form-label">姓名</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="name" required  lay-verify="required" placeholder="请输入组织名称" autocomplete="off" class="layui-input">
+                                    <input type="text" name="name" required  lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
                                 </div>
                             </div>
                             <div class="layui-form-item">
@@ -461,7 +451,7 @@
                             <div class="layui-form-item">
                                 <label class="layui-form-label">联系方式</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="phone" required  lay-verify="required" placeholder="请输入组织联系方式" autocomplete="off" class="layui-input">
+                                    <input type="text" name="phone" required  lay-verify="required" placeholder="请输入联系方式" autocomplete="off" class="layui-input">
                                 </div>
                             </div>
                             <div class="layui-form-item">
@@ -471,7 +461,7 @@
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <button type="submit" id="messageFormSubmit4" class="layui-btn" onclick="setTimeout(upMessage,'1000');">确认添加</button>
+                                <button type="button" id="messageFormSubmit4" class="layui-btn" onclick="addVisitor()">确认添加</button>
                                 <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset4">重置</button>
                             </div>
                         </form>
@@ -482,14 +472,14 @@
                             <div class="layui-form-item">
                                 <label class="layui-form-label">姓名</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="name" required  lay-verify="required" placeholder="请输入组织名称" autocomplete="off" class="layui-input"
+                                    <input type="text" name="name" required  lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input"
                                     value="${sessionScope.visitor.getName()}">
                                 </div>
                             </div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">性别</label>
                                 <div class="layui-input-block">
-                                    <input type="text" name="sex" required  lay-verify="required" placeholder="请输入组织名称" autocomplete="off" class="layui-input"
+                                    <input type="text" name="sex" required  lay-verify="required" placeholder="请输入性别" autocomplete="off" class="layui-input"
                                            value="${sessionScope.visitor.getSex()}">
                                 </div>
                             </div>
@@ -529,7 +519,7 @@
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <button type="submit" id="messageFormSubmit5" class="layui-btn" onclick="setTimeout(upMessage2,'1000');">确认修改</button>
+                                <button type="button" id="messageFormSubmit5" class="layui-btn" onclick="updateVisitorInfo();">确认修改</button>
                                 <button type="reset" class="layui-btn layui-btn-primary" id="messageFormReset5">重置</button>
                             </div>
                         </form>
@@ -623,6 +613,96 @@
     function upMessage() {
         document.getElementById("messageForm").reset();
         layer.msg('添加成功');
+    }
+    //修改组织管理员信息
+    function updateOAdminInfo() {
+        $.ajax({
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/admin/SUpdateOAdmin" ,//url
+            data: $('#messageForm7').serialize(),
+            success: function (data) {
+                alert("修改成功！");
+                document.getElementById("messageForm7").reset();
+            },
+            error : function() {
+                alert("修改成功！");
+                document.getElementById("messageForm7").reset();
+            }
+        });
+    }
+    //新增组织管理员
+    function addAdmin() {
+        $.ajax({
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/admin/SAddOAdmin" ,//url
+            data: $('#messageForm').serialize(),
+            success: function (data) {
+                alert("添加成功！");
+                document.getElementById("messageForm").reset();
+            },
+            error : function() {
+                alert("添加成功！");
+                document.getElementById("messageForm").reset();
+            }
+        });
+    }
+    //新增组织
+    function addCompany() {
+        $.ajax({
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/admin/SAddCompany" ,//url
+            data: $('#messageForm3').serialize(),
+            success: function (data) {
+                alert("添加成功！");
+                document.getElementById("messageForm3").reset();
+            },
+            error : function() {
+                alert("添加成功！");
+                document.getElementById("messageForm3").reset();
+            }
+        });
+    }
+    //新增游客
+    function addVisitor() {
+        $.ajax({
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/admin/SAddVisitor" ,//url
+            data: $('#messageForm4').serialize(),
+            success: function (data) {
+                alert("添加成功！");
+                document.getElementById("messageForm4").reset();
+            },
+            error : function() {
+                alert("添加成功！");
+                document.getElementById("messageForm4").reset();
+            }
+        });
+    }
+    //修改游客信息
+    function updateVisitorInfo() {
+        $.ajax({
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/admin/SUpdateVisitor" ,//url
+            data: $('#messageForm5').serialize(),
+            success: function (data) {
+                alert("修改成功！");
+                document.getElementById("messageForm5").reset();
+            },
+            error : function() {
+                alert("修改成功！");
+                document.getElementById("messageForm5").reset();
+            }
+        });
     }
     function upMessage1() {
         document.getElementById("messageForm1").reset();
@@ -750,7 +830,8 @@
         xmlHttp.send(null);
     }
     function opSuccess(){
-        document.getElementById("adminInfoSp").click();
+        document.getElementById("reviewcompAdminSp").click();
+        document.getElementById("judgeAdmin").click();
     }
     function setCompanySuccess() {
         document.getElementById("updateCompany").click();
@@ -980,7 +1061,11 @@
                     setOAdminInSession(tempId);
                 }else if(obj.event === 'agree'){
                     tempId = info.id;
-                    agreeOAdmin(tempId);
+                    layer.confirm('同意此申请么', function(index){
+                        agreeOAdmin(tempId);
+                        obj.del();
+                        layer.close(index);
+                    });
                 }
                 else if(obj.event === 'disagree'){
                     tempId = info.id;
@@ -1006,13 +1091,14 @@
                     ,{field:'pswd', width:120, title: '密码'}
                     ,{field:'phone', width:120,title: '联系方式'}
                     ,{field:'credit_card', width:120,title: '信用卡卡号'}
-                    ,{field:'identified', width:120, title: '人脸是否验证'}
+                    ,{field:'identified', width:130,title: '是否人脸验证'}
                     ,{fixed: 'right', title:'操作', toolbar: '#barOP', width:120}
                 ]]
                 ,response: {
                     statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
                 }
                 ,parseData: function(res){ //将原始数据解析成 table 组件所规定的数据
+                    console.log(res);
                     return {
                         "code": res.status, //解析接口状态
                         "msg": res.msg, //解析提示文本

@@ -74,4 +74,10 @@ public interface AppointmentDAO extends JpaRepository<Appointment,BigInteger> {
     //获取所有未审核通过预约会议
     @Query(value="from Appointment where id=?1 and state='申请中'")
     List<Appointment> findApply(BigInteger id);
+
+    /*
+     * 根据场地id 、 公司id 和一个时间段查询预约数据
+     * */
+    List<Appointment> findByPlace_idAndCompanyIdAndStartTimeAfterAndEndTimeBefore(BigInteger place_id, BigInteger company_id, Timestamp start_time, Timestamp end_time);
+
 }

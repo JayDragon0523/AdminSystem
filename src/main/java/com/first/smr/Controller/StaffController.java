@@ -1,10 +1,12 @@
 package com.first.smr.Controller;
 
 import com.first.smr.CommonResult;
+import com.first.smr.POJO.GroupMember;
 import com.first.smr.Service.StaffService;
 import com.first.smr.POJO.Staff;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.annotation.ModelAndViewResolver;
@@ -12,6 +14,7 @@ import org.springframework.web.servlet.mvc.annotation.ModelAndViewResolver;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigInteger;
+import java.util.List;
 
 @RestController
 @RequestMapping("/staff")
@@ -59,5 +62,26 @@ public class StaffController {
    {
         return staffService.getPersonFromHistory(staff_id);
    }
+
+    //创建群组
+    @RequestMapping(value="/createGroup",method = RequestMethod.POST)
+    public CommonResult createGroup(@RequestParam(required = false) String groupName, List<GroupMember> groupMemberList)
+    {
+        return staffService.createGroup(groupName,groupMemberList);
+    }
+
+    //加入群组
+    @RequestMapping(value = "/joinGroup",method = RequestMethod.POST)
+    public CommonResult joinGroup(String groupId,List<GroupMember> groupMemberList)
+    {
+        return staffService.joinGroup(groupId,groupMemberList);
+    }
+
+    //获取所在群组
+    @RequestMapping(value = "/getGroup",method = RequestMethod.GET)
+    public CommonResult getGroup(BigInteger staffId)
+    {
+        return  staffService.getGroup(staffId);
+    }
 
 }

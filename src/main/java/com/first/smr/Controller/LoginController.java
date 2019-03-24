@@ -38,7 +38,7 @@ public class LoginController{
 				request.getSession().setMaxInactiveInterval(1800);
 				return new ModelAndView("sysadmin");
 			}else{
-				request.getSession().setAttribute("VAdmin", a);
+				request.getSession().setAttribute("OAdmin", a);
 				request.getSession().setMaxInactiveInterval(1800);
 				return new ModelAndView("visitoradmin");
 			}

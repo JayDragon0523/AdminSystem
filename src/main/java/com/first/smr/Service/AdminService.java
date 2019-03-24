@@ -24,6 +24,8 @@ import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -654,6 +656,35 @@ public class AdminService {
     }
 
     /*
+     * 系统管理员寻找职员评价
+     * @param evaluation: 游客评价对象
+     * @return
+     * */
+    public CommonResult OFindStaffEvaluations(int pagenum, int size, HttpServletRequest request){
+        CommonResult result=new CommonResult();
+        Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
+        Pageable pageable=getPageable(pagenum,size);
+        List<Evaluation> page;
+        List<Place> places;
+        List<BigInteger> placeId = new ArrayList<>();
+        try {
+            places = placeDAO.findByCompanyId(aInSession.getCompanyId());
+            for (int i = 0; i < places.size(); i++) {
+                placeId.add(places.get(i).getId());
+            }
+            page = evaluationDAO.findByCompanyId2(placeId);
+            result.setCount(page.size());
+            result.setData(page);
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
+    }
+
+    /*
      * 组织管理员删除游客评价
      * @param evaluation: 游客评价对象
      * @return
@@ -825,6 +856,17 @@ public class AdminService {
         return true;
     }
 
+    public BigInteger getTheComanpy(String s){
+        Company cFind = null;
+        try{
+            CommonResult result = new CommonResult();
+            cFind=companyDAO.findByName(s);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return cFind.getId();
+    }
+
     /*
     * 系统管理员增加公司
     * @param company: 公司对象
@@ -929,7 +971,7 @@ public class AdminService {
 
     //组织管理员设置会议室相关参数
     @Transactional
-    public CommonResult setScheduleConfig(ScheduleConfig scheduleConfig)
+    public void setScheduleConfig(ScheduleConfig scheduleConfig)
     {
         CommonResult result=new CommonResult();
         //  SMRUtil smrUtil=new SMRUtil();
@@ -958,7 +1000,6 @@ public class AdminService {
             result.setMsg("参数设置失败");
             result.setResult("fail");
         }
-        return result;
     }
 
     //修改会议室相关参数
@@ -1036,6 +1077,24 @@ public class AdminService {
 //        }
 //        return result;
 //    }
+
+    public CommonResult getDepartmentOptions(HttpServletRequest request){
+        CommonResult result=new CommonResult();
+        Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
+        List<Department> page = null;
+        try {
+            if (aInSession == null) System.out.println("null");
+            else page = departmentDao.find(aInSession.getCompanyId());
+            result.setCount(page.size());
+            result.setData(page);
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
+    }
 
     //获取会议人员
     public List<Attendees> getPeopleNum(BigInteger id){
@@ -1140,6 +1199,7 @@ public class AdminService {
             }
             else if(time!=null && place_id==null && state==null){
                 list=visitorAppointmentDAO.findByAppointment_StartTimeAfterAndAppointment_StartTimeBeforeAndAppointment_CompanyId(before_timestamp, after_timestamp, aInSession.getCompanyId());
+                System.out.println("listsize:"+list.size());
                 result.setData(list);
             }
             else if(time==null && place_id!=null && state==null){
@@ -1444,7 +1504,7 @@ public class AdminService {
     * @param request: HttpServletRequest对象
     * @return
     * */
-    public CommonResult OAddOrUpdateStaff(Staff staff, HttpServletRequest request){
+    public void OAddOrUpdateStaff(Staff staff, HttpServletRequest request){
         CommonResult result = new CommonResult();
         Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
         try{
@@ -1457,7 +1517,6 @@ public class AdminService {
             result.setStatus(500);
             result.setMsg("error");
         }
-        return result;
     }
 
     /*
@@ -1486,10 +1545,16 @@ public class AdminService {
     public CommonResult OAddOrUpdateAppointment(Appointment appointment, HttpServletRequest request){
         CommonResult result = new CommonResult();
         Admin aInSession=(Admin)request.getSession().getAttribute("OAdmin");
+        Appointment a = appointmentDAO.findOne(appointment.getId());
         try{
-            appointment.setCompanyId(aInSession.getCompanyId());
-            appointment.setOrderer_id(aInSession.getId());
-            appointmentDAO.save(appointment);
+            if(a!=null){
+                a.setPlace_id(appointment.getPlace_id());
+                a.setPlace_name(appointment.getPlace_name());
+                appointment.setCompanyId(aInSession.getCompanyId());
+                appointmentDAO.save(a);
+            }
+            else
+                appointmentDAO.save(appointment);
         }catch (Exception e){
             result.setStatus(500);
             result.setMsg("error");
@@ -1551,6 +1616,39 @@ public class AdminService {
         }
         return result;
     }
+
+    //组织管理员查询场地一周内安排
+    public CommonResult OFindStaffAppointmentsInWeek(Date time, BigInteger place_id, HttpServletRequest request){
+        CommonResult result = new CommonResult();
+        try{
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Admin aInSession = (Admin)request.getSession().getAttribute("OAdmin");
+            LocalDate localDate = time.toLocalDate();
+            LocalDate before_localDate = localDate.minusDays(1);
+            LocalDate after_localDate = localDate.plusDays(7);
+            LocalDateTime before_localDateTime = before_localDate.atTime(23,59,59);
+            LocalDateTime after_localDateTime = after_localDate.atTime(0,0,0);
+            Timestamp before_timestamp = Timestamp.valueOf(before_localDateTime);
+            Timestamp after_timestamp = Timestamp.valueOf(after_localDateTime);
+            List<Appointment> list = appointmentDAO.findByPlace_idAndCompanyIdAndStartTimeAfterAndEndTimeBefore(place_id, aInSession.getCompanyId(), before_timestamp, after_timestamp);
+            if(list!=null){
+                for(Appointment app: list) {
+                    System.out.println("start_time" + app.getStartTime());
+                    System.out.println("end_time" + app.getEndTime() + "\n");
+                    app.setStime(format.format(app.getStartTime()));
+                    app.setEtime(format.format(app.getEndTime()));
+                }
+            }
+            result.setData(list);
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setStatus(500);
+            result.setResult("fail");
+            result.setMsg("error");
+        }
+        return result;
+    }
+
 
     /*
     * 发送验证码短信

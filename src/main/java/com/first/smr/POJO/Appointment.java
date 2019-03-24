@@ -1,7 +1,8 @@
 package com.first.smr.POJO;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
@@ -23,6 +24,10 @@ public class Appointment implements Serializable {
     private BigInteger orderer_id;
     @Column(name="orderer_type",nullable = false)
     private String ordererType;
+    @Column(name = "staff_id", nullable = false)
+    private BigInteger staffId;
+    @Column(name = "visitor_id", nullable = false)
+    private BigInteger visitorId;
     @Column(name = "start_time",nullable = false)
     private Timestamp startTime;
     @Column(name = "end_time",nullable = false)
@@ -30,6 +35,7 @@ public class Appointment implements Serializable {
     private BigInteger place_id;
     @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH},optional = false)
     @JoinColumn(name = "place_id",insertable=false, updatable=false)
+    @JsonIgnoreProperties(value = {"company"})
     private Place place;
     private String place_name;
     @Column(name = "company_id")
@@ -51,17 +57,15 @@ public class Appointment implements Serializable {
 
 
     @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH},optional = false)
-    @JoinColumn(name = "orderer_id",insertable=false, updatable=false)
+    @JoinColumn(name = "visitor_id",insertable=false, updatable=false)
     private Visitor visitor;
     @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH},optional = false)
-    @JoinColumn(name = "orderer_id",insertable=false, updatable=false)
+    @JoinColumn(name = "staff_id",insertable=false, updatable=false)
     private Staff staff;
 
     public Timestamp getStartTime() {
         return startTime;
     }
-
-
     public void setStartTime(Timestamp startTime) {
         this.startTime = startTime;
     }
@@ -190,5 +194,21 @@ public class Appointment implements Serializable {
 
     public void setEtime(String etime) {
         this.etime = etime;
+    }
+
+    public BigInteger getStaffId() {
+        return staffId;
+    }
+
+    public void setStaffId(BigInteger staffId) {
+        this.staffId = staffId;
+    }
+
+    public BigInteger getVisitorId() {
+        return visitorId;
+    }
+
+    public void setVisitorId(BigInteger visitorId) {
+        this.visitorId = visitorId;
     }
 }

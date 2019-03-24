@@ -18,6 +18,7 @@ public class Recommend implements Serializable {
     private String instruction;
     private int capacity;
     private String type;
+    private String cost;
     public Recommend(){}
     public BigInteger getId() {
         return id;
@@ -35,7 +36,7 @@ public class Recommend implements Serializable {
         this.type = type;
     }
 
-    public Recommend(BigInteger id, String name, String address, String introduction, String device, String instruction, int capacity, String type) {
+    public Recommend(BigInteger id, String name, String address, String introduction, String device, String instruction, int capacity, String type, String cost) {
         this.id=id;
         this.name = name;
         this.address = address;
@@ -43,7 +44,8 @@ public class Recommend implements Serializable {
         this.device = device;
         this.instruction = instruction;
         this.capacity = capacity;
-        this.type=type;
+        this.type = type;
+        this.cost = cost;
     }
 
     public String getName() {
@@ -92,5 +94,13 @@ public class Recommend implements Serializable {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public String getCost() {
+        return cost;
+    }
+
+    public void setCost(String cost) {
+        this.cost = cost;
     }
 }

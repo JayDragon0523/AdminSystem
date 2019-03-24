@@ -4,7 +4,7 @@
 <html class="loginHtml">
 <head>
     <meta charset="utf-8">
-    <title>登录</title>
+    <title>管理员登录</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -41,9 +41,9 @@
     <div class="layui-form-item">
         <a href="http://localhost:8080/companyRegister">公司注册</a>
     </div>
-    <div class="layui-form-item">
-        <a href="http://localhost:8080/OAdminRegister">公司管理员注册</a>
-    </div>
+    <%--<div class="layui-form-item">--%>
+        <%--<a href="http://localhost:8080/OAdminRegister">公司管理员注册</a>--%>
+    <%--</div>--%>
     </center>
     <div class="layui-form-item layui-row">
         <a href="javascript:;" class="seraph icon-qq layui-col-xs4 layui-col-sm4 layui-col-md4 layui-col-lg4"></a>

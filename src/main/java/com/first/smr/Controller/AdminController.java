@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.sql.Date;
+import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,16 +50,16 @@ public class AdminController {
         else
             return new ModelAndView("errorPage","error","管理员信息更新失败");
     }
-    //组织管理员密码更新
+    //组织管理员和发布管理员密码更新
     @RequestMapping(value="/OAdminSafe",method = {RequestMethod.GET,RequestMethod.POST})
     public ModelAndView OAdminSafe(HttpServletRequest request, Admin a){
         Admin b = (Admin) request.getSession().getAttribute("OAdmin");
-        if(admin.adminSafe(b.getAccount(),a)) {
+        if (admin.adminSafe(b.getAccount(), a)) {
             return null;
-        }
-        else
-            return new ModelAndView("errorPage","error","管理员密码修改失败");
+        } else
+            return new ModelAndView("errorPage", "error", "管理员密码修改失败");
     }
+
     //系统管理员密码更新
     @RequestMapping(value="/SAdminSafe",method = {RequestMethod.GET,RequestMethod.POST})
     public ModelAndView SAdminSafe(HttpServletRequest request, Admin a){
@@ -317,6 +318,12 @@ public class AdminController {
         return admin.OFindEvaluations(page,limit,request);
     }
 
+    // 组织管理员分页查询所有游客评价
+    @RequestMapping(value = "/OFindStaffEvaluations",method = RequestMethod.GET)
+    public CommonResult OFindStaffEvaluations(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int limit,HttpServletRequest request){
+        return admin.OFindStaffEvaluations(page,limit,request);
+    }
+
     // 组织管理员删除游客评价
     // 必须参数 id
     @RequestMapping(value = "/ODeleteEvaluation")
@@ -331,11 +338,19 @@ public class AdminController {
     // 公司申请
     // 必须参数 name,address,register_num,head_name,head_phone,introduction
     @RequestMapping(value = "/companyApply")
-    public  ModelAndView companyApply(Company company){
-        if (admin.companyApply(company))
-            return null;
-        else
-            return new ModelAndView("errorPage","error","添加公司信息失败");
+    public  void companyApply(Company company,HttpServletRequest request){
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+        BigInteger bigInteger = null;
+        try {
+            if(company.getOpen_time() == null) company.setOpen_time(new Time(df.parse("08:00:00").getTime()));
+            if(company.getClose_time() == null) company.setClose_time(new Time(df.parse("18:00:00").getTime()));
+            admin.companyApply(company);
+            bigInteger = admin.getTheComanpy(company.getName());
+            request.getSession().setAttribute("companyId",bigInteger);
+            System.out.println(bigInteger);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     // 系统管理员分页查询所有公司申请
@@ -412,29 +427,23 @@ public class AdminController {
     @RequestMapping(value="/setCompanyInfoTemp",method = {RequestMethod.GET,RequestMethod.POST})
     public void setCompanyInfoTemp(Company c, HttpServletRequest request, HttpServletResponse response, MultipartRequest multiReq) throws ServletException, IOException {
         request.getSession().setAttribute("company",c);
-        MultipartFile mf = multiReq.getFile("file");
-        String strPath = "..//..//..//..//..//..//webapp//data//companyImage//" + c.getId() + c.getName();
-        if (mf.isEmpty()) {
-            File f = new File(strPath + "//" + "无营业执照上传" + ".txt");
-            try {
-                FileWriter fw = new FileWriter(f);
-                fw.write("未上传文件");
-                fw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            File ee = new File(strPath);
-            if (!ee.exists())
-                ee.mkdirs();
-            mf.transferTo(new File(strPath+"//"+mf.getOriginalFilename()));
-        }
-//        request.getSession().setAttribute("company",c);
-//        StringBuffer xml = new StringBuffer("<result>");
-//        xml.append("<status>1</status>");
-//        xml.append("<func>setCompanySuccess();</func>");
-//        xml.append("</result>");
-//        sendResponse(response, xml.toString());
+//        MultipartFile mf = multiReq.getFile("file");
+//        String strPath = "..//..//..//..//..//..//webapp//data//companyImage//" + c.getId() + c.getName();
+//        if (mf.isEmpty()) {
+//            File f = new File(strPath + "//" + "无营业执照上传" + ".txt");
+//            try {
+//                FileWriter fw = new FileWriter(f);
+//                fw.write("未上传文件");
+//                fw.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            File ee = new File(strPath);
+//            if (!ee.exists())
+//                ee.mkdirs();
+//            mf.transferTo(new File(strPath+"//"+mf.getOriginalFilename()));
+//        }
     }
 
     // 提交注册时session中的公司信息
@@ -452,6 +461,52 @@ public class AdminController {
     /************************************/
     /*             场地管理             */
     /************************************/
+
+    // 发布管理员增加场地
+    // 必须参数 name,address,type  可选参数 introduction,device,instruction,cost,capacity,location
+    @RequestMapping(value = "/RAddPlace", method = RequestMethod.POST)
+    public CommonResult RAddPlace(Place place, HttpServletRequest request){
+        return admin.RAddPlace(place, request);
+    }
+
+    //发布管理员进行场地图片的上传
+    @RequestMapping(value="/VAdminImagesUpload",method= RequestMethod.POST)
+    public ModelAndView VAdminImagesUpload(HttpServletRequest request, MultipartHttpServletRequest multiReq,Place place) throws IOException {
+        try {
+            admin.RAddPlace(place,request);
+            List<MultipartFile> mf = multiReq.getFiles("file");
+            String strPath = "D:\\masterSpring\\AdminSystem\\src\\main\\webapp\\data\\placeImage\\" + place.getId() + place.getName();
+            String relPath = "/src/main/webapp/data/placeImage/" + place.getId() + place.getName();
+            List<PlaceImage> placeImages = new ArrayList<>();
+            for (int i = 0; i < mf.size(); i++) {
+                PlaceImage placeImage = new PlaceImage();
+                if (mf.get(i).isEmpty()) {
+                    File f = new File(strPath + "\\" + "该场地无预览" + ".txt");
+                    try {
+                        FileWriter fw = new FileWriter(f);
+                        fw.write("管理员未上传文件");
+                        fw.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    File ee = new File(strPath);
+                    if (!ee.exists())
+                        ee.mkdirs();
+                    mf.get(i).transferTo(new File(strPath + "\\" + mf.get(i).getOriginalFilename()));
+                    placeImage.setPlaceId(place.getId());
+                    placeImage.setPortrait(relPath + '/' + mf.get(i).getOriginalFilename());
+                    placeImages.add(placeImage);
+                }
+            }
+            admin.OAddPlaceImages(placeImages);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ModelAndView("errorPage");
+        }
+        return null;
+    }
+
 
     //进行场地图片的上传
     @RequestMapping(value="/imagesUpload",method= RequestMethod.POST)
@@ -499,9 +554,9 @@ public class AdminController {
 
     //组织管理员设置会议室相关参数
     @RequestMapping(value = "/setScheduleConfig",method = RequestMethod.POST)
-    public CommonResult setScheduleConfig(ScheduleConfig scheduleConfig)
+    public void setScheduleConfig(ScheduleConfig scheduleConfig)
     {
-        return admin.setScheduleConfig(scheduleConfig);
+        admin.setScheduleConfig(scheduleConfig);
     }
 
     //组织管理员修改会议室相关参数
@@ -563,6 +618,12 @@ public class AdminController {
     /*             职员管理             */
     /************************************/
 
+    // 获取下拉列表部门
+    @RequestMapping(value = "/getDepartmentOptions", method = {RequestMethod.GET,RequestMethod.POST})
+    public CommonResult getDepartmentOptions(HttpServletRequest request){
+        return admin.getDepartmentOptions(request);
+    }
+
     // 组织管理员分页查询本公司的职员信息
 //    @RequestMapping(value = "/OFindStaffs",method = RequestMethod.GET)
 //    public CommonResult OFindStaffs(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int limit, @RequestParam(required = false) String name, HttpServletRequest request){
@@ -573,9 +634,8 @@ public class AdminController {
     // 增加必须参数 department,id_num,jobnum,name,phone,pswd
     // 修改必须参数 id,department,id_num,jobnum,name,phone,pswd
     @RequestMapping(value = "/OAddOrUpdateStaff", method = RequestMethod.POST)
-    public CommonResult OAddOrUpdateStaff(Staff staff, HttpServletRequest request){
-        System.out.println(staff.getJobnum());
-        return admin.OAddOrUpdateStaff(staff, request);
+    public void OAddOrUpdateStaff(Staff staff, HttpServletRequest request){
+        admin.OAddOrUpdateStaff(staff, request);
     }
 
     // 组织管理员删除职员信息
@@ -589,6 +649,12 @@ public class AdminController {
     /*             预约管理             */
     /************************************/
 
+    //查询一周内会议安排
+    @RequestMapping(value = "/OFindStaffAppointmentsInWeek", method = {RequestMethod.GET,RequestMethod.POST})
+    public CommonResult OFindStaffAppointmentsInWeek(@RequestParam Date time, @RequestParam BigInteger place_id, HttpServletRequest request){
+        return admin.OFindStaffAppointmentsInWeek(time, place_id, request);
+    }
+
     //获取会议人数
     @RequestMapping(value = "/queryAttendeesList", method = RequestMethod.GET)
     public void queryPeopleNum(BigInteger id, HttpServletResponse response)
@@ -597,7 +663,7 @@ public class AdminController {
         StringBuffer xml = new StringBuffer("<result>");
         xml.append("<num>").append(resultList.size()).append("</num>");
         xml.append("<status>1</status>");
-        xml.append("<func>retrunPeopleNum()</func>");
+        xml.append("<func>returnPeopleNum()</func>");
         xml.append("</result>");
         sendResponse(response, xml.toString());
     }
@@ -689,8 +755,15 @@ public class AdminController {
     // 组织管理员添加或修改预约信息
     // 增加必须参数 startTime,endTime,place_id,place_name,type,duration
     // 修改必须参数 id,startTime,endTime,place_id,place_name,type,duration
-    @RequestMapping(value = "/OAddOrUpdateAppointment", method = RequestMethod.POST)
-    public CommonResult OAddOrUpdateAppointment(Appointment appointment, HttpServletRequest request){ return admin.OAddOrUpdateAppointment(appointment, request);}
+    @RequestMapping(value = "/OAddOrUpdateAppointment", method = {RequestMethod.GET,RequestMethod.POST})
+    public void OAddOrUpdateAppointment(Appointment appointment, HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
+        admin.OAddOrUpdateAppointment(appointment, request);
+        StringBuffer xml = new StringBuffer("<result>");
+        xml.append("<status>1</status>");
+        xml.append("<func>setNewPlaceSuccess();</func>");
+        xml.append("</result>");
+        sendResponse(response, xml.toString());
+    }
 
     // 组织管理员删除职员预约信息
     // 必须参数 id

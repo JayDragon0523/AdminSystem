@@ -20,7 +20,7 @@ public class Evaluation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
-    @JsonIgnore
+    //@JsonIgnore
     @Column(name = "place_id",nullable = false)
     private BigInteger placeId;
     private Timestamp time;

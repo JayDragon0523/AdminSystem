@@ -9,7 +9,7 @@ import java.math.BigInteger;
 @Entity
 @Table(name="visitor")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(value = { "face_info","pswd","credit_card","id_num","phone" })
+//@JsonIgnoreProperties(value = { "face_info","pswd","credit_card","id_num","phone" })
 public class Visitor implements Serializable {
 
     private static final Long serialVersionUID = 2073182677862878262L;
@@ -81,6 +81,7 @@ public class Visitor implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
     private String name;
+    private String account;
     private String sex;
     private String pswd;
     private String phone;
@@ -97,6 +98,13 @@ public class Visitor implements Serializable {
         this.face_info = face_info;
     }
 
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
+    }
 
     public Visitor(){}
     public Visitor(BigInteger id,String name)
@@ -104,6 +112,4 @@ public class Visitor implements Serializable {
         this.id=id;
         this.name=name;
     }
-
-
 }
